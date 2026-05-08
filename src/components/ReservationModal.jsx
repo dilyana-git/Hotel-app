@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
+import { scoreRooms, fitLabel } from '../utils/roomScoring'
 import './ReservationModal.css'
 
 function addDays(dateStr, n) {
@@ -20,6 +21,19 @@ function hasConflict(reservations, roomId, checkIn, checkOut, excludeId) {
   })
 }
 
+function gapDesc(gaps) {
+  const parts = []
+  if (gaps.before === 0) parts.push('back-to-back after prev. guest')
+  else if (gaps.before === 1) parts.push('1 day after prev. guest')
+  else if (gaps.before != null) parts.push(`${gaps.before}d gap before`)
+
+  if (gaps.after === 0) parts.push('back-to-back before next guest')
+  else if (gaps.after === 1) parts.push('1 day before next guest')
+  else if (gaps.after != null) parts.push(`${gaps.after}d gap after`)
+
+  return parts.join(' · ') || 'No adjacent bookings'
+}
+
 export default function ReservationModal({
   mode, reservation, initialRoomId, initialDate,
   rooms, reservations, onSave, onDelete, onClose,
@@ -38,7 +52,8 @@ export default function ReservationModal({
     paid: false,
     notes: '',
   })
-  const [error, setError] = useState('')
+  const [error, setError]             = useState('')
+  const [showAllRooms, setShowAll]    = useState(false)
 
   useEffect(() => {
     if (mode === 'edit' && reservation) {
@@ -55,15 +70,12 @@ export default function ReservationModal({
     }
   }, [mode, reservation])
 
-  useEffect(() => {
-    firstInputRef.current?.focus()
-  }, [])
+  useEffect(() => { firstInputRef.current?.focus() }, [])
 
   function set(field, value) {
     setError('')
     setForm(prev => {
       const next = { ...prev, [field]: value }
-      // Auto-advance checkout when checkin changes
       if (field === 'checkIn' && value) {
         if (!prev.checkOut || prev.checkOut <= value) {
           next.checkOut = addDays(value, 1)
@@ -80,6 +92,16 @@ export default function ReservationModal({
     })
   }
 
+  // Score available rooms whenever dates change
+  const scored = useMemo(() => {
+    if (!form.checkIn || !form.checkOut || form.checkOut <= form.checkIn) return []
+    return scoreRooms(rooms, form.checkIn, form.checkOut, reservations, reservation?.id)
+  }, [form.checkIn, form.checkOut, rooms, reservations, reservation?.id])
+
+  const bestRoom    = scored[0] ?? null
+  const isBestRoom  = bestRoom?.room.id === form.roomId
+  const currentScore = scored.find(s => s.room.id === form.roomId)
+
   function handleSubmit(e) {
     e.preventDefault()
     if (!form.guestName.trim()) { setError('Guest name is required.'); return }
@@ -91,13 +113,11 @@ export default function ReservationModal({
     if (hasConflict(reservations, form.roomId, form.checkIn, form.checkOut, reservation?.id)) {
       setError('This room is already booked for part of that period.'); return
     }
-
-    const data = {
+    onSave({
       ...form,
       id:    mode === 'edit' ? reservation.id    : undefined,
       color: mode === 'edit' ? reservation.color : undefined,
-    }
-    onSave(data)
+    })
   }
 
   function handleDelete() {
@@ -106,8 +126,11 @@ export default function ReservationModal({
     }
   }
 
-  const nights = nightsBetween(form.checkIn, form.checkOut)
+  const nights   = nightsBetween(form.checkIn, form.checkOut)
   const roomName = rooms.find(r => r.id === form.roomId)?.name ?? ''
+
+  // Rooms shown in the smart picker (top 5 unless expanded)
+  const visibleScored = showAllRooms ? scored : scored.slice(0, 5)
 
   return (
     <div className="overlay" onClick={onClose}>
@@ -140,16 +163,6 @@ export default function ReservationModal({
             />
           </div>
 
-          {/* Room */}
-          <div className="field">
-            <label>Room</label>
-            <select value={form.roomId} onChange={e => set('roomId', e.target.value)}>
-              {rooms.map(r => (
-                <option key={r.id} value={r.id}>{r.name}{r.type ? ` — ${r.type}` : ''}</option>
-              ))}
-            </select>
-          </div>
-
           {/* Dates */}
           <div className="field-row">
             <div className="field">
@@ -176,6 +189,75 @@ export default function ReservationModal({
               {nights} night{nights !== 1 ? 's' : ''} · {roomName}
             </div>
           )}
+
+          {/* ── Smart room picker ─────────────────────── */}
+          <div className="field">
+            <label>
+              Room
+              {scored.length > 0 && (
+                <span className="label-hint"> — sorted by best fit</span>
+              )}
+            </label>
+
+            {scored.length > 0 ? (
+              <>
+                <div className="room-picker">
+                  {visibleScored.map(({ room, score, gaps }, i) => {
+                    const lbl      = fitLabel(score)
+                    const selected = form.roomId === room.id
+                    return (
+                      <button
+                        key={room.id}
+                        type="button"
+                        className={`room-option ${selected ? 'selected' : ''}`}
+                        onClick={() => set('roomId', room.id)}
+                      >
+                        <div className="room-opt-top">
+                          <span className="room-opt-name">
+                            {room.name}
+                            {i === 0 && <span className="star-badge">★ Best</span>}
+                          </span>
+                          <span className="fit-badge" style={{ color: lbl.color, borderColor: lbl.color + '55', background: lbl.color + '12' }}>
+                            {lbl.text}
+                          </span>
+                        </div>
+                        <div className="room-opt-detail">{gapDesc(gaps)}</div>
+                      </button>
+                    )
+                  })}
+                </div>
+
+                {scored.length > 5 && (
+                  <button
+                    type="button"
+                    className="show-more-btn"
+                    onClick={() => setShowAll(v => !v)}
+                  >
+                    {showAllRooms
+                      ? 'Show fewer rooms'
+                      : `Show all ${scored.length} available rooms`}
+                  </button>
+                )}
+
+                {/* Warn if a non-optimal room is selected */}
+                {currentScore && !isBestRoom && (() => {
+                  const lbl = fitLabel(currentScore.score)
+                  return lbl.text === 'Creates gap' ? (
+                    <div className="room-warn">
+                      ⚠ This room will leave a gap. Consider <strong>{bestRoom.room.name}</strong> for a better fit.
+                    </div>
+                  ) : null
+                })()}
+              </>
+            ) : (
+              /* Fallback plain select when dates not set yet */
+              <select value={form.roomId} onChange={e => set('roomId', e.target.value)}>
+                {rooms.map(r => (
+                  <option key={r.id} value={r.id}>{r.name}{r.type ? ` — ${r.type}` : ''}</option>
+                ))}
+              </select>
+            )}
+          </div>
 
           {/* Price */}
           <div className="field-row">

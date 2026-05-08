@@ -165,6 +165,101 @@ form { padding: 16px 24px 0 }
   margin-left: auto;
 }
 
+/* ── Smart room picker ────────────────────────────── */
+.label-hint {
+  font-weight: 400;
+  font-size: .7rem;
+  color: var(--blue);
+  text-transform: none;
+  letter-spacing: 0;
+  margin-left: 4px;
+}
+
+.room-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.room-option {
+  width: 100%;
+  text-align: left;
+  background: var(--white);
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius);
+  padding: 9px 12px;
+  cursor: pointer;
+  transition: border-color .15s, box-shadow .15s, background .15s;
+  font-family: var(--font);
+}
+.room-option:hover {
+  border-color: var(--gray-400);
+  background: var(--gray-50);
+}
+.room-option.selected {
+  border-color: var(--blue);
+  background: var(--blue-lt);
+  box-shadow: 0 0 0 3px rgba(37,99,235,.1);
+}
+
+.room-opt-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.room-opt-name {
+  font-weight: 700;
+  font-size: .88rem;
+  color: var(--gray-900);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.star-badge {
+  font-size: .68rem;
+  background: #FEF9C3;
+  color: #854D0E;
+  border: 1px solid #FDE047;
+  padding: 1px 6px;
+  border-radius: 99px;
+  font-weight: 700;
+}
+.fit-badge {
+  font-size: .7rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 99px;
+  border: 1px solid;
+  white-space: nowrap;
+}
+.room-opt-detail {
+  font-size: .72rem;
+  color: var(--gray-400);
+  margin-top: 3px;
+}
+
+.show-more-btn {
+  background: none;
+  border: none;
+  color: var(--blue);
+  font-size: .78rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 0;
+  text-decoration: underline;
+}
+
+.room-warn {
+  background: #FFF7ED;
+  border: 1px solid #FED7AA;
+  border-radius: var(--radius);
+  padding: 8px 12px;
+  font-size: .8rem;
+  color: var(--orange);
+  margin-top: 4px;
+}
+
 /* ── Mobile ───────────────────────────────────────── */
 @media (max-width: 480px) {
   .modal { border-radius: 14px 14px 0 0; align-self: flex-end; max-height: 92dvh }
