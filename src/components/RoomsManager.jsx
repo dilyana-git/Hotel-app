@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import './RoomsManager.css'
 
-const ROOM_TYPES = ['Standard', 'Deluxe', 'Suite', 'Family', 'Single', 'Double', 'Twin']
+const ROOM_TYPES = ['Standard', 'Deluxe', 'Suite', 'Family', 'Single', 'Double', 'Twin', 'Apartment', 'Room']
 
 export default function RoomsManager({ rooms, onSave }) {
   const [list, setList]         = useState(rooms)
@@ -11,7 +11,7 @@ export default function RoomsManager({ rooms, onSave }) {
   function addRoom() {
     const id   = `r${Date.now()}`
     const name = `Room ${list.length + 1}`
-    setList(prev => [...prev, { id, name, type: 'Standard' }])
+    setList(prev => [...prev, { id, name, type: 'Room', price: 100 }])
     setEditing(id)
     setSaved(false)
   }
@@ -100,12 +100,20 @@ export default function RoomsManager({ rooms, onSave }) {
                 >
                   {ROOM_TYPES.map(t => <option key={t}>{t}</option>)}
                 </select>
+                <input
+                  type="number"
+                  value={room.price}
+                  onChange={e => update(room.id, 'price', Number(e.target.value))}
+                  placeholder="Price"
+                  min="0"
+                />
                 <button className="btn btn-ghost btn-sm" onClick={() => setEditing(null)}>Done</button>
               </div>
             ) : (
               <div className="room-display" onClick={() => setEditing(room.id)}>
                 <span className="room-display-name">{room.name}</span>
                 <span className="room-display-type">{room.type}</span>
+                <span className="room-display-price">${room.price}</span>
               </div>
             )}
 

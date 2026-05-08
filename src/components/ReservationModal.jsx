@@ -69,6 +69,13 @@ export default function ReservationModal({
           next.checkOut = addDays(value, 1)
         }
       }
+      // Auto-set price when room changes, if price is empty
+      if (field === 'roomId') {
+        const room = rooms.find(r => r.id === value)
+        if (room && !prev.price) {
+          next.price = room.price
+        }
+      }
       return next
     })
   }

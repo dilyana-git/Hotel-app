@@ -25,24 +25,34 @@ function load(key, fallback) {
 }
 
 const DEFAULT_ROOMS = [
-  ...Array.from({ length: 10 }, (_, i) => ({
-    id: `r${101 + i}`, name: `Room ${101 + i}`, type: 'Standard'
-  })),
-  ...Array.from({ length: 10 }, (_, i) => ({
-    id: `r${201 + i}`, name: `Room ${201 + i}`, type: 'Standard'
-  })),
+  { id: 'r11', name: '11', type: 'Room', price: 100 },
+  { id: 'r12', name: '12', type: 'Room', price: 100 },
+  { id: 'r13', name: '13', type: 'Room', price: 100 },
+  { id: 'r14', name: '14', type: 'Room', price: 100 },
+  { id: 'r21', name: '21', type: 'Apartment', price: 150 },
+  { id: 'r22', name: '22', type: 'Room', price: 100 },
+  { id: 'r23', name: '23', type: 'Room', price: 100 },
+  { id: 'r24', name: '24', type: 'Room', price: 100 },
+  { id: 'r25', name: '25', type: 'Room', price: 100 },
+  { id: 'r26', name: '26', type: 'Apartment', price: 150 },
+  { id: 'r31', name: '31', type: 'Apartment', price: 150 },
+  { id: 'r32', name: '32', type: 'Room', price: 100 },
+  { id: 'r33', name: '33', type: 'Room', price: 100 },
+  { id: 'r34', name: '34', type: 'Room', price: 100 },
+  { id: 'r35', name: '35', type: 'Room', price: 100 },
+  { id: 'r36', name: '36', type: 'Apartment', price: 150 },
 ]
 
 export default function App() {
   const today = new Date()
   const [year, setYear]   = useState(today.getFullYear())
   const [month, setMonth] = useState(today.getMonth() + 1)
-  const [rooms, setRooms] = useState(() => load('hm-rooms', DEFAULT_ROOMS))
+  const [rooms, setRooms] = useState(() => load('hm-rooms-v4', DEFAULT_ROOMS))
   const [reservations, setReservations] = useState(() => load('hm-reservations', []))
   const [modal, setModal] = useState(null)
   const [view, setView]   = useState('grid')
 
-  useEffect(() => { localStorage.setItem('hm-rooms', JSON.stringify(rooms)) }, [rooms])
+  useEffect(() => { localStorage.setItem('hm-rooms-v4', JSON.stringify(rooms)) }, [rooms])
   useEffect(() => { localStorage.setItem('hm-reservations', JSON.stringify(reservations)) }, [reservations])
 
   function prevMonth() {
