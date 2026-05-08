@@ -1,0 +1,175 @@
+/* ── Overlay ──────────────────────────────────────── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 16px;
+  animation: fadeIn .15s ease;
+}
+@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+
+/* ── Modal card ───────────────────────────────────── */
+.modal {
+  background: var(--white);
+  border-radius: 14px;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.2);
+  overflow-y: auto;
+  max-height: calc(100dvh - 32px);
+  animation: slideUp .2s ease;
+}
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0 }
+  to   { transform: translateY(0);    opacity: 1 }
+}
+
+/* ── Modal header ─────────────────────────────────── */
+.modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--gray-100);
+}
+.modal-head h2 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--gray-900);
+}
+.close-x {
+  width: 30px; height: 30px;
+  border: none;
+  background: var(--gray-100);
+  border-radius: 50%;
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--gray-500);
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s;
+}
+.close-x:hover { background: var(--gray-200) }
+
+/* ── Form fields ──────────────────────────────────── */
+form { padding: 16px 24px 0 }
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 14px;
+}
+.field label {
+  font-size: .78rem;
+  font-weight: 600;
+  color: var(--gray-500);
+  text-transform: uppercase;
+  letter-spacing: .4px;
+}
+.req { color: var(--red) }
+
+.field input[type="text"],
+.field input[type="tel"],
+.field input[type="number"],
+.field input[type="date"],
+.field select,
+.field textarea {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius);
+  font-size: .9rem;
+  font-family: var(--font);
+  color: var(--gray-900);
+  background: var(--white);
+  transition: border-color .15s, box-shadow .15s;
+  outline: none;
+}
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(37,99,235,.12);
+}
+.field textarea { resize: vertical; min-height: 72px }
+.field select    { cursor: pointer }
+
+/* ── Side-by-side fields ──────────────────────────── */
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* ── Checkbox ─────────────────────────────────────── */
+.field-check { justify-content: flex-end }
+.check-label {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: .88rem !important;
+  font-weight: 600 !important;
+  color: var(--gray-700) !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  margin-top: 22px; /* align with the price input */
+}
+.check-label input[type="checkbox"] {
+  width: 18px; height: 18px;
+  cursor: pointer;
+  accent-color: var(--blue);
+}
+
+/* ── Nights pill ──────────────────────────────────── */
+.nights-pill {
+  display: inline-block;
+  background: var(--blue-lt);
+  color: var(--blue);
+  padding: 4px 12px;
+  border-radius: 99px;
+  font-size: .8rem;
+  font-weight: 700;
+  margin: -4px 0 14px;
+}
+
+/* ── Error message ────────────────────────────────── */
+.form-error {
+  background: var(--red-lt);
+  border: 1px solid #FECACA;
+  border-radius: var(--radius);
+  color: var(--red);
+  font-size: .82rem;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+}
+
+/* ── Footer ───────────────────────────────────────── */
+.modal-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-top: 1px solid var(--gray-100);
+  margin-top: 4px;
+}
+.foot-right {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+/* ── Mobile ───────────────────────────────────────── */
+@media (max-width: 480px) {
+  .modal { border-radius: 14px 14px 0 0; align-self: flex-end; max-height: 92dvh }
+  .overlay { align-items: flex-end; padding: 0 }
+  .field-row { grid-template-columns: 1fr }
+  .field-check { justify-content: flex-start }
+  .check-label { margin-top: 0 }
+}

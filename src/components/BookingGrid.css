@@ -1,0 +1,196 @@
+/* ── Scroll container ─────────────────────────────── */
+.grid-wrapper {
+  flex: 1;
+  overflow-x: auto;
+  overflow-y: auto;
+  /* Let it fill the remaining viewport below header + month-nav */
+  max-height: calc(100dvh - 113px);
+  background: var(--white);
+}
+
+/* ── Table base ───────────────────────────────────── */
+.booking-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  min-width: max-content;
+  width: 100%;
+  font-size: .82rem;
+}
+
+/* ── Sticky header row ────────────────────────────── */
+.sticky-head {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--gray-50);
+  border-bottom: 2px solid var(--gray-200);
+}
+
+/* ── Sticky date column ───────────────────────────── */
+.sticky-col {
+  position: sticky;
+  left: 0;
+  z-index: 10;
+  background: var(--white);
+}
+
+/* The top-left corner must be above both */
+.date-header.sticky-col.sticky-head { z-index: 30 }
+
+/* ── Column headers (room names) ─────────────────── */
+.date-header {
+  width: 60px;
+  min-width: 60px;
+  padding: 8px 6px;
+  text-align: center;
+  font-size: .7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: var(--gray-500);
+}
+
+.room-header {
+  min-width: 110px;
+  max-width: 130px;
+  padding: 8px 6px;
+  text-align: center;
+  border-left: 1px solid var(--gray-200);
+}
+.room-hdr-name {
+  font-weight: 700;
+  color: var(--gray-700);
+  font-size: .8rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.room-hdr-type {
+  font-size: .65rem;
+  color: var(--gray-400);
+  margin-top: 2px;
+  font-weight: 500;
+}
+
+/* ── Rows ─────────────────────────────────────────── */
+.booking-table tbody tr {
+  border-bottom: 1px solid var(--gray-100);
+}
+.row-weekend { background: #FAFBFF }
+.row-today   { background: #FFFBEB }
+.row-today .sticky-col { background: #FFFBEB }
+.row-weekend .sticky-col { background: #FAFBFF }
+
+/* ── Date cell ────────────────────────────────────── */
+.date-cell {
+  width: 60px;
+  min-width: 60px;
+  padding: 4px 6px;
+  border-right: 2px solid var(--gray-200);
+  text-align: center;
+  display: table-cell;        /* important — sticky-col uses table-cell */
+  vertical-align: middle;
+  background: var(--white);   /* overridden by row classes above */
+}
+.date-cell-today {
+  background: #FFFBEB !important;
+}
+.day-num {
+  display: block;
+  font-weight: 700;
+  font-size: .92rem;
+  color: var(--gray-900);
+  line-height: 1.2;
+}
+.date-cell-today .day-num {
+  color: var(--blue);
+}
+.day-abbr {
+  display: block;
+  font-size: .62rem;
+  color: var(--gray-400);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+}
+
+/* ── Free cell ────────────────────────────────────── */
+.free-cell {
+  border-left: 1px solid var(--gray-100);
+  cursor: pointer;
+  height: 34px;
+  vertical-align: top;
+  transition: background .1s;
+}
+.free-cell:hover { background: var(--blue-lt) }
+
+/* ── Reservation cell ─────────────────────────────── */
+.res-cell {
+  border-left: 1px solid var(--gray-200);
+  vertical-align: top;
+  padding: 2px 3px;
+  cursor: pointer;
+}
+
+.res-block {
+  border: 1px solid;
+  border-radius: 5px;
+  padding: 4px 6px;
+  height: 100%;
+  min-height: 30px;
+  border-left-width: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  transition: filter .15s, box-shadow .15s;
+  overflow: hidden;
+}
+.res-block:hover {
+  filter: brightness(.95);
+  box-shadow: 0 2px 8px rgba(0,0,0,.12);
+}
+.res-block.from-prev { border-top-left-radius: 0; border-top-right-radius: 0 }
+.res-block.to-next   { border-bottom-left-radius: 0; border-bottom-right-radius: 0 }
+
+.res-name {
+  font-weight: 700;
+  font-size: .78rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--gray-900);
+}
+.res-phone {
+  font-size: .68rem;
+  color: var(--gray-500);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.res-meta {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+.res-nights {
+  font-size: .65rem;
+  color: var(--gray-500);
+  font-weight: 600;
+}
+.badge-paid {
+  font-size: .62rem;
+  background: var(--green-lt);
+  color: var(--green);
+  padding: 1px 5px;
+  border-radius: 99px;
+  font-weight: 700;
+}
+.badge-unpaid {
+  font-size: .62rem;
+  background: #FEF3C7;
+  color: var(--orange);
+  padding: 1px 5px;
+  border-radius: 99px;
+  font-weight: 700;
+}

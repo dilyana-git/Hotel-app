@@ -1,0 +1,158 @@
+/* ── Page wrapper ─────────────────────────────────── */
+.rooms-page {
+  max-width: 600px;
+  margin: 24px auto;
+  padding: 0 16px 80px;
+}
+
+/* ── Toolbar ──────────────────────────────────────── */
+.rooms-toolbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 12px;
+}
+.rooms-toolbar h2 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--gray-900);
+}
+.rooms-hint {
+  font-size: .78rem;
+  color: var(--gray-400);
+  margin-top: 3px;
+}
+
+/* ── Room list ────────────────────────────────────── */
+.rooms-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.rooms-empty {
+  text-align: center;
+  padding: 40px;
+  color: var(--gray-400);
+  font-size: .9rem;
+  border: 2px dashed var(--gray-200);
+  border-radius: var(--radius);
+}
+
+/* ── Room row ─────────────────────────────────────── */
+.room-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--white);
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  transition: border-color .15s, box-shadow .15s;
+}
+.room-row:hover,
+.room-row.editing {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(37,99,235,.08);
+}
+
+/* ── Order buttons ────────────────────────────────── */
+.room-order {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.order-btn {
+  width: 22px; height: 22px;
+  border: 1px solid var(--gray-200);
+  background: var(--gray-50);
+  border-radius: 4px;
+  font-size: .6rem;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--gray-500);
+  display: flex; align-items: center; justify-content: center;
+  transition: background .1s;
+}
+.order-btn:hover:not(:disabled) { background: var(--gray-200) }
+.order-btn:disabled { opacity: .3; cursor: default }
+
+/* ── Display mode ─────────────────────────────────── */
+.room-display {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  min-width: 0;
+}
+.room-display-name {
+  font-weight: 700;
+  font-size: .9rem;
+  color: var(--gray-900);
+}
+.room-display-type {
+  font-size: .75rem;
+  color: var(--gray-400);
+  background: var(--gray-100);
+  padding: 2px 8px;
+  border-radius: 99px;
+}
+
+/* ── Edit mode ────────────────────────────────────── */
+.room-edit-fields {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+.room-edit-fields input,
+.room-edit-fields select {
+  padding: 6px 10px;
+  border: 1.5px solid var(--blue);
+  border-radius: var(--radius);
+  font-size: .85rem;
+  font-family: var(--font);
+  color: var(--gray-900);
+  background: var(--white);
+  outline: none;
+}
+.room-edit-fields input { flex: 1; min-width: 100px }
+.room-edit-fields select { min-width: 110px }
+
+/* ── Remove button ────────────────────────────────── */
+.remove-btn {
+  width: 28px; height: 28px;
+  border: none;
+  background: transparent;
+  border-radius: 50%;
+  font-size: .85rem;
+  color: var(--gray-400);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: background .15s, color .15s;
+}
+.remove-btn:hover { background: var(--red-lt); color: var(--red) }
+
+/* ── Save bar ─────────────────────────────────────── */
+.rooms-save-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0; right: 0;
+  padding: 12px 24px;
+  background: var(--white);
+  border-top: 1px solid var(--gray-200);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+  z-index: 50;
+}
+.save-ok {
+  color: var(--green);
+  font-size: .85rem;
+  font-weight: 600;
+}

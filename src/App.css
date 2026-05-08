@@ -1,0 +1,178 @@
+/* ── Reset & base ─────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0 }
+
+:root {
+  --blue:    #2563EB;
+  --blue-lt: #EFF6FF;
+  --blue-dk: #1D4ED8;
+  --green:   #16A34A;
+  --green-lt:#DCFCE7;
+  --red:     #DC2626;
+  --red-lt:  #FEF2F2;
+  --orange:  #EA580C;
+  --gray-50: #F8FAFC;
+  --gray-100:#F1F5F9;
+  --gray-200:#E2E8F0;
+  --gray-300:#CBD5E1;
+  --gray-400:#94A3B8;
+  --gray-500:#64748B;
+  --gray-700:#334155;
+  --gray-900:#0F172A;
+  --white:   #FFFFFF;
+  --radius:  8px;
+  --shadow:  0 1px 3px rgba(0,0,0,.1), 0 1px 2px rgba(0,0,0,.06);
+  --shadow-md: 0 4px 6px rgba(0,0,0,.07), 0 2px 4px rgba(0,0,0,.06);
+  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+html { font-size: 15px }
+body {
+  font-family: var(--font);
+  background: var(--gray-50);
+  color: var(--gray-900);
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── App shell ────────────────────────────────────── */
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+/* ── Header ───────────────────────────────────────── */
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  height: 56px;
+  background: var(--white);
+  border-bottom: 1px solid var(--gray-200);
+  box-shadow: var(--shadow);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.brand-icon  { font-size: 1.4rem }
+.brand-name  { font-weight: 700; font-size: 1.05rem; color: var(--gray-900); letter-spacing: -0.3px }
+
+.header-nav  { display: flex; gap: 4px }
+
+.nav-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius);
+  font-size: .85rem;
+  font-weight: 500;
+  color: var(--gray-500);
+  cursor: pointer;
+  transition: background .15s, color .15s;
+}
+.nav-tab:hover  { background: var(--gray-100); color: var(--gray-700) }
+.nav-tab.active { background: var(--blue-lt);  color: var(--blue); font-weight: 600 }
+.nav-icon       { font-size: 1rem }
+
+/* ── Month navigation ─────────────────────────────── */
+.month-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: var(--white);
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.month-arrow {
+  width: 36px; height: 36px;
+  border: 1px solid var(--gray-200);
+  background: var(--white);
+  border-radius: var(--radius);
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--gray-700);
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s, border-color .15s;
+}
+.month-arrow:hover { background: var(--gray-100); border-color: var(--gray-300) }
+
+.month-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.month-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--gray-900);
+  letter-spacing: -0.4px;
+}
+.today-btn {
+  padding: 2px 12px;
+  border: 1px solid var(--gray-300);
+  background: var(--white);
+  border-radius: 999px;
+  font-size: .75rem;
+  font-weight: 500;
+  color: var(--blue);
+  cursor: pointer;
+  transition: background .15s;
+}
+.today-btn:hover { background: var(--blue-lt) }
+
+/* ── Shared button styles ─────────────────────────── */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 6px;
+  padding: 9px 18px;
+  border-radius: var(--radius);
+  font-size: .875rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background .15s, box-shadow .15s;
+  line-height: 1;
+}
+.btn-primary {
+  background: var(--blue);
+  color: var(--white);
+  border-color: var(--blue);
+}
+.btn-primary:hover { background: var(--blue-dk) }
+
+.btn-ghost {
+  background: var(--white);
+  color: var(--gray-700);
+  border-color: var(--gray-300);
+}
+.btn-ghost:hover { background: var(--gray-100) }
+
+.btn-danger {
+  background: var(--red-lt);
+  color: var(--red);
+  border-color: #FECACA;
+}
+.btn-danger:hover { background: #FEE2E2 }
+
+.btn-sm { padding: 5px 12px; font-size: .8rem }
+
+/* ── Empty state ──────────────────────────────────── */
+.empty-state {
+  padding: 60px 24px;
+  text-align: center;
+  color: var(--gray-500);
+  line-height: 1.8;
+}
