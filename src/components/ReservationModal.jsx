@@ -49,22 +49,23 @@ const PAYMENT_OPTIONS = [
 ]
 
 export default function ReservationModal({
-  mode, reservation, initialRoomId, initialCheckIn, initialCheckOut,
+  mode, reservation, initialRoomId, initialCheckIn, initialCheckOut, voiceData,
   rooms, seasons, reservations, onSave, onDelete, onClose, onApplySwap,
 }) {
   const firstInputRef = useRef(null)
-  const defaultCheckIn  = initialCheckIn ?? ''
-  const defaultCheckOut = initialCheckOut ?? (initialCheckIn ? addDays(initialCheckIn, 1) : '')
+  const defaultCheckIn  = voiceData?.checkIn  ?? initialCheckIn  ?? ''
+  const defaultCheckOut = voiceData?.checkOut ?? initialCheckOut ?? (defaultCheckIn ? addDays(defaultCheckIn, 1) : '')
+  const defaultRoomId   = voiceData?.roomId   ?? initialRoomId   ?? rooms[0]?.id ?? ''
 
   const [form, setForm] = useState({
-    guestName:     '',
-    phone:         '',
-    roomId:        initialRoomId ?? rooms[0]?.id ?? '',
+    guestName:     voiceData?.guestName ?? '',
+    phone:         voiceData?.phone     ?? '',
+    roomId:        defaultRoomId,
     checkIn:       defaultCheckIn,
     checkOut:      defaultCheckOut,
     price:         '',
     paymentStatus: 'reserved',
-    notes:         '',
+    notes:         voiceData?.notes ?? '',
   })
   const [priceOverridden, setPriceOverridden] = useState(false)
   const [error, setError]   = useState('')
@@ -183,6 +184,13 @@ export default function ReservationModal({
         </div>
 
         <form onSubmit={handleSubmit} noValidate>
+          {voiceData?._transcript && (
+            <div className="voice-banner">
+              🎤 &ldquo;{voiceData._transcript}&rdquo;
+              <span className="voice-banner-hint">Review the pre-filled details and confirm</span>
+            </div>
+          )}
+
           <div className="field">
             <label>Име на гост <span className="req">*</span></label>
             <input ref={firstInputRef} type="text" value={form.guestName}

@@ -1,8 +1,10 @@
-import express  from 'express'
+import 'dotenv/config'
+import express   from 'express'
 import fs        from 'fs'
 import os        from 'os'
 import path      from 'path'
 import qrcode    from 'qrcode-terminal'
+import Anthropic from '@anthropic-ai/sdk'
 import { fileURLToPath } from 'url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -47,6 +49,55 @@ app.put('/api/data/:key', (req, res) => {
   store[req.params.key] = req.body
   writeStore(store)
   res.json({ ok: true })
+})
+
+// ── Voice: parse spoken reservation via Claude ────────
+app.post('/api/parse-reservation', async (req, res) => {
+  if (!process.env.ANTHROPIC_API_KEY) {
+    return res.status(503).json({ error: 'ANTHROPIC_API_KEY not configured in .env' })
+  }
+  const { text } = req.body
+  if (!text?.trim()) return res.status(400).json({ error: 'No text provided' })
+
+  const store  = readStore()
+  const rooms  = store.rooms ?? []
+  const today  = new Date().toISOString().slice(0, 10)
+  const tmrw   = new Date(Date.now() + 86400000).toISOString().slice(0, 10)
+
+  const client = new Anthropic()
+  const msg    = await client.messages.create({
+    model:      'claude-haiku-4-5-20251001',
+    max_tokens: 512,
+    system:     'Extract hotel reservation details from spoken text. Return ONLY valid JSON — no markdown, no explanation.',
+    messages: [{
+      role:    'user',
+      content: `Today is ${today}. Tomorrow is ${tmrw}.
+Available rooms: ${rooms.map(r => `id="${r.id}" name="${r.name}" type="${r.type}"`).join(', ')}
+
+Spoken reservation: "${text}"
+
+Return JSON with these exact fields:
+{
+  "guestName": string or null,
+  "phone":     string or null,
+  "checkIn":   "YYYY-MM-DD" or null,
+  "checkOut":  "YYYY-MM-DD" or null,
+  "roomId":    one of the available room ids or null,
+  "notes":     string or null
+}
+
+Rules:
+- If N nights are mentioned, set checkOut = checkIn + N days
+- Match room by number or type if mentioned
+- The text may be in any language — keep guest names as spoken`,
+    }],
+  })
+
+  try {
+    res.json(JSON.parse(msg.content[0].text))
+  } catch {
+    res.status(500).json({ error: 'Could not parse Claude response' })
+  }
 })
 
 // ── Start ─────────────────────────────────────────────

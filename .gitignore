@@ -4,3 +4,4 @@ dist/
 *.local
 hotel-data.json
 hotel-data.json.tmp
+.env

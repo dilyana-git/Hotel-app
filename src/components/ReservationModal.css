@@ -357,6 +357,78 @@ form { padding: 16px 24px 0 }
   margin-top: 4px;
 }
 
+/* ── Voice banner ─────────────────────────────────── */
+.voice-banner {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: hsl(250,52%,97%);
+  border: 1px solid hsl(250,40%,88%);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  margin: 0 24px 4px;
+  font-size: .82rem;
+  color: hsl(250,40%,30%);
+  font-style: italic;
+  line-height: 1.4;
+}
+.voice-banner-hint {
+  font-style: normal;
+  font-size: .75rem;
+  font-weight: 600;
+  color: hsl(250,40%,45%);
+}
+
+/* ── Swap suggestions ─────────────────────────────── */
+.swap-section {
+  margin: 0 24px 12px;
+  background: hsl(250,40%,98%);
+  border: 1px solid hsl(250,40%,90%);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+}
+.swap-section-label {
+  font-size: .72rem;
+  font-weight: 700;
+  color: hsl(250,40%,45%);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  margin-bottom: 8px;
+}
+.swap-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 0;
+  border-top: 1px solid hsl(250,30%,93%);
+}
+.swap-item:first-of-type { border-top: none; padding-top: 0; }
+.swap-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.swap-guest {
+  font-size: .82rem;
+  font-weight: 600;
+  color: var(--gray-900);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.swap-route {
+  font-size: .72rem;
+  color: var(--gray-400);
+}
+.swap-item-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
 /* ── Mobile ───────────────────────────────────────── */
 @media (max-width: 480px) {
   .modal { border-radius: 14px 14px 0 0; align-self: flex-end; max-height: 92dvh }

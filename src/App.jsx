@@ -4,6 +4,7 @@ import ReservationModal from './components/ReservationModal'
 import ReservationQuickView from './components/ReservationQuickView'
 import RoomsManager from './components/RoomsManager'
 import ConfigPage from './components/ConfigPage'
+import VoiceButton from './components/VoiceButton'
 import { loadAll, save } from './utils/api'
 
 const MONTHS = [
@@ -74,6 +75,16 @@ export default function App() {
   function goToday() {
     setYear(today.getFullYear())
     setMonth(today.getMonth() + 1)
+  }
+
+  function handleVoiceResult(data) {
+    setModal({
+      mode: 'add',
+      roomId:   data.roomId   ?? null,
+      checkIn:  data.checkIn  ?? null,
+      checkOut: data.checkOut ?? null,
+      voiceData: data,
+    })
   }
 
   function openAdd(roomId, checkIn, checkOut) { setModal({ mode: 'add', roomId, checkIn, checkOut }) }
@@ -164,6 +175,7 @@ export default function App() {
             onCellClick={openAdd}
             onReservationClick={openQuick}
           />
+          <VoiceButton onResult={handleVoiceResult} />
         </>
       )}
 
@@ -196,6 +208,7 @@ export default function App() {
           initialRoomId={modal.roomId ?? modal.reservation?.roomId}
           initialCheckIn={modal.checkIn ?? modal.reservation?.checkIn}
           initialCheckOut={modal.checkOut}
+          voiceData={modal.voiceData ?? null}
           rooms={rooms}
           seasons={seasons}
           reservations={reservations}
