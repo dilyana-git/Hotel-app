@@ -67,7 +67,7 @@ export default function App() {
     setMonth(today.getMonth() + 1)
   }
 
-  function openAdd(roomId, date)  { setModal({ mode: 'add',   roomId, date }) }
+  function openAdd(roomId, checkIn, checkOut) { setModal({ mode: 'add', roomId, checkIn, checkOut }) }
   function openQuick(reservation) { setModal({ mode: 'quick', reservation }) }
   function openEdit(reservation)  { setModal({ mode: 'edit',  reservation }) }
 
@@ -183,7 +183,8 @@ export default function App() {
           mode={modal.mode}
           reservation={modal.reservation ?? null}
           initialRoomId={modal.roomId ?? modal.reservation?.roomId}
-          initialDate={modal.date ?? modal.reservation?.checkIn}
+          initialCheckIn={modal.checkIn ?? modal.reservation?.checkIn}
+          initialCheckOut={modal.checkOut}
           rooms={rooms}
           seasons={seasons}
           reservations={reservations}

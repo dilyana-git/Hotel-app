@@ -163,7 +163,11 @@
   vertical-align: top;
   transition: background .1s;
 }
-.free-cell:hover { background: var(--blue-lt) }
+.free-cell:hover    { background: var(--blue-lt) }
+.free-cell.selecting {
+  background: hsl(250,45%,93%);
+  border-left-color: hsl(250,52%,70%);
+}
 
 /* ── Reservation cell ─────────────────────────────── */
 .res-cell {

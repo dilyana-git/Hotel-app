@@ -1,3 +1,4 @@
+import { useState, useEffect, useRef } from 'react'
 import { reservationColor, legendItems } from '../utils/colors'
 import './BookingGrid.css'
 
@@ -87,6 +88,85 @@ export default function BookingGrid({ year, month, rooms, reservations, onCellCl
   const todayStr = toDateStr(today.getFullYear(), today.getMonth()+1, today.getDate())
   const { grid, total } = buildGrid(year, month, rooms, reservations)
 
+  // ── Drag-to-select ────────────────────────────────
+  const [drag, setDrag]        = useState(null)
+  const dragRef                = useRef(null)
+  const gridWrapperRef         = useRef(null)
+  const touchMoveHandlerRef    = useRef(null)
+
+  const selMin  = drag ? Math.min(drag.startDay, drag.endDay) : null
+  const selMax  = drag ? Math.max(drag.startDay, drag.endDay) : null
+  const selRoom = drag?.roomId
+
+  function startDrag(roomId, day) {
+    dragRef.current = { roomId, startDay: day, endDay: day }
+    setDrag({ ...dragRef.current })
+  }
+
+  function extendDrag(roomId, day) {
+    const d = dragRef.current
+    if (!d || d.roomId !== roomId) return
+    // Walk toward `day`, stopping before any occupied cell
+    const step = day >= d.startDay ? 1 : -1
+    let endDay = d.startDay
+    let cursor = d.startDay + step
+    while (step > 0 ? cursor <= day : cursor >= day) {
+      if (grid[cursor]?.[roomId]?.type !== 'free') break
+      endDay = cursor
+      cursor += step
+    }
+    if (endDay === d.endDay) return
+    dragRef.current = { ...d, endDay }
+    setDrag({ ...dragRef.current })
+  }
+
+  function commitDrag(d) {
+    const min = Math.min(d.startDay, d.endDay)
+    const max = Math.max(d.startDay, d.endDay)
+    onCellClick(d.roomId, toDateStr(year, month, min), toDateStr(year, month, max + 1))
+  }
+
+  // Stable document-level mouseup — fires even if cursor leaves the grid
+  useEffect(() => {
+    function onMouseUp() {
+      const d = dragRef.current
+      if (!d) return
+      dragRef.current = null
+      setDrag(null)
+      commitDrag(d)
+    }
+    document.addEventListener('mouseup', onMouseUp)
+    return () => document.removeEventListener('mouseup', onMouseUp)
+  }, [year, month, onCellClick]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Keep the touch-move closure fresh (captures current `grid`)
+  touchMoveHandlerRef.current = function(e) {
+    if (!dragRef.current) return
+    e.preventDefault()
+    const touch = e.touches[0]
+    const el    = document.elementFromPoint(touch.clientX, touch.clientY)
+    const day   = Number(el?.dataset?.day)
+    const rid   = el?.dataset?.roomId
+    if (day && rid) extendDrag(rid, day)
+  }
+
+  // Non-passive touchmove so preventDefault() actually prevents scroll
+  useEffect(() => {
+    const wrapper = gridWrapperRef.current
+    if (!wrapper) return
+    function onTouchMove(e) { touchMoveHandlerRef.current?.(e) }
+    wrapper.addEventListener('touchmove', onTouchMove, { passive: false })
+    return () => wrapper.removeEventListener('touchmove', onTouchMove)
+  }, [])
+
+  function handleTouchEnd() {
+    const d = dragRef.current
+    if (!d) return
+    dragRef.current = null
+    setDrag(null)
+    commitDrag(d)
+  }
+
   if (rooms.length === 0) {
     return (
       <div className="empty-state">
@@ -99,7 +179,12 @@ export default function BookingGrid({ year, month, rooms, reservations, onCellCl
   return (
     <>
       <Legend rooms={rooms} />
-      <div className="grid-wrapper">
+      <div
+        className="grid-wrapper"
+        ref={gridWrapperRef}
+        onTouchEnd={handleTouchEnd}
+        style={drag ? { userSelect: 'none' } : undefined}
+      >
         <table className="booking-table">
           <thead>
             <tr>
@@ -151,9 +236,9 @@ export default function BookingGrid({ year, month, rooms, reservations, onCellCl
                               toNext   ? 'to-next'   : '',
                             ].join(' ')}
                             style={{
-                              background:   colors.bg,
-                              borderColor:  colors.border,
-                              color:        colors.text,
+                              background:      colors.bg,
+                              borderColor:     colors.border,
+                              color:           colors.text,
                               borderLeftColor: colors.border,
                             }}
                           >
@@ -170,9 +255,15 @@ export default function BookingGrid({ year, month, rooms, reservations, onCellCl
                       )
                     }
 
+                    const isSelecting = selRoom === room.id && day >= selMin && day <= selMax
                     return (
-                      <td key={room.id} className="free-cell"
-                        onClick={() => onCellClick(room.id, dateStr)}
+                      <td key={room.id}
+                        className={`free-cell${isSelecting ? ' selecting' : ''}`}
+                        data-day={day}
+                        data-room-id={room.id}
+                        onMouseDown={e => { e.preventDefault(); startDrag(room.id, day) }}
+                        onMouseEnter={() => extendDrag(room.id, day)}
+                        onTouchStart={e => { e.preventDefault(); startDrag(room.id, day) }}
                         title={`Add reservation — ${room.name}`}
                       />
                     )

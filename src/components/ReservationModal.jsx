@@ -49,12 +49,12 @@ const PAYMENT_OPTIONS = [
 ]
 
 export default function ReservationModal({
-  mode, reservation, initialRoomId, initialDate,
+  mode, reservation, initialRoomId, initialCheckIn, initialCheckOut,
   rooms, seasons, reservations, onSave, onDelete, onClose, onApplySwap,
 }) {
   const firstInputRef = useRef(null)
-  const defaultCheckIn  = initialDate ?? ''
-  const defaultCheckOut = initialDate ? addDays(initialDate, 1) : ''
+  const defaultCheckIn  = initialCheckIn ?? ''
+  const defaultCheckOut = initialCheckOut ?? (initialCheckIn ? addDays(initialCheckIn, 1) : '')
 
   const [form, setForm] = useState({
     guestName:     '',
