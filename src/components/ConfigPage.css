@@ -139,8 +139,8 @@
   font-size: .75rem;
   font-weight: 700;
 }
-.chip-room { background: hsl(213,52%,86%); color: hsl(213,58%,26%) }
-.chip-apt  { background: hsl(163,52%,84%); color: hsl(163,58%,22%) }
+.chip-room { background: hsl(250,52%,88%); color: hsl(250,58%,26%) }
+.chip-apt  { background: hsl( 16,52%,88%); color: hsl( 16,58%,28%) }
 
 .price-wrap {
   display: flex;

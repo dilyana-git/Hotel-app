@@ -1,6 +1,6 @@
 // Hue per room category
-const ROOM_HUE = 213   // blue
-const APT_HUE  = 163   // teal
+const ROOM_HUE = 250   // indigo / violet
+const APT_HUE  =  16   // terracotta / coral
 
 // Saturation/lightness per payment status (same across both hues)
 const SATS = {

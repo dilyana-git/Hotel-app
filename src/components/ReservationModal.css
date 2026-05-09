@@ -94,7 +94,7 @@ form { padding: 16px 24px 0 }
 .field select:focus,
 .field textarea:focus {
   border-color: var(--blue);
-  box-shadow: 0 0 0 3px rgba(37,99,235,.12);
+  box-shadow: 0 0 0 3px rgba(99,102,241,.12);
 }
 .field textarea { resize: vertical; min-height: 72px }
 .field select    { cursor: pointer }
@@ -150,7 +150,7 @@ form { padding: 16px 24px 0 }
 }
 .price-field-wrap:focus-within {
   border-color: var(--blue);
-  box-shadow: 0 0 0 3px rgba(37,99,235,.12);
+  box-shadow: 0 0 0 3px rgba(99,102,241,.12);
 }
 .currency-prefix {
   padding: 9px 10px;
@@ -181,9 +181,9 @@ form { padding: 16px 24px 0 }
   line-height: 1.5;
 }
 .payment-summary strong { font-weight: 700 }
-.status-reserved { background: hsl(213,18%,93%); color: hsl(213,18%,40%); border: 1px solid hsl(213,18%,75%) }
-.status-advance  { background: hsl(213,52%,86%); color: hsl(213,58%,26%); border: 1px solid hsl(213,58%,55%) }
-.status-paid     { background: hsl(213,78%,78%); color: hsl(213,78%,20%); border: 1px solid hsl(213,78%,42%) }
+.status-reserved { background: hsl(250,18%,93%); color: hsl(250,18%,40%); border: 1px solid hsl(250,18%,75%) }
+.status-advance  { background: hsl(250,52%,86%); color: hsl(250,58%,26%); border: 1px solid hsl(250,58%,55%) }
+.status-paid     { background: hsl(250,78%,78%); color: hsl(250,78%,20%); border: 1px solid hsl(250,78%,42%) }
 
 /* ── Error message ────────────────────────────────── */
 .form-error {
