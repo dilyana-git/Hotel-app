@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import BookingGrid from './components/BookingGrid'
 import ReservationModal from './components/ReservationModal'
+import ReservationQuickView from './components/ReservationQuickView'
 import RoomsManager from './components/RoomsManager'
 import ConfigPage from './components/ConfigPage'
 
@@ -66,8 +67,20 @@ export default function App() {
     setMonth(today.getMonth() + 1)
   }
 
-  function openAdd(roomId, date) { setModal({ mode: 'add', roomId, date }) }
-  function openEdit(reservation)  { setModal({ mode: 'edit', reservation }) }
+  function openAdd(roomId, date)  { setModal({ mode: 'add',   roomId, date }) }
+  function openQuick(reservation) { setModal({ mode: 'quick', reservation }) }
+  function openEdit(reservation)  { setModal({ mode: 'edit',  reservation }) }
+
+  function updatePaymentStatus(id, status) {
+    setReservations(prev => prev.map(r =>
+      r.id === id ? { ...r, paymentStatus: status } : r
+    ))
+    // Keep quick view open with updated reservation
+    setModal(prev => prev?.mode === 'quick'
+      ? { ...prev, reservation: { ...prev.reservation, paymentStatus: status } }
+      : prev
+    )
+  }
 
   function saveReservation(data) {
     if (modal.mode === 'add') {
@@ -129,7 +142,7 @@ export default function App() {
             rooms={rooms}
             reservations={reservations}
             onCellClick={openAdd}
-            onReservationClick={openEdit}
+            onReservationClick={openQuick}
           />
         </>
       )}
@@ -142,7 +155,18 @@ export default function App() {
         <ConfigPage seasons={seasons} rooms={rooms} onSave={setSeasons} />
       )}
 
-      {modal && (
+      {modal?.mode === 'quick' && (
+        <ReservationQuickView
+          reservation={modal.reservation}
+          room={rooms.find(r => r.id === modal.reservation.roomId)}
+          onStatusChange={status => updatePaymentStatus(modal.reservation.id, status)}
+          onEdit={() => openEdit(modal.reservation)}
+          onDelete={deleteReservation}
+          onClose={() => setModal(null)}
+        />
+      )}
+
+      {(modal?.mode === 'add' || modal?.mode === 'edit') && (
         <ReservationModal
           mode={modal.mode}
           reservation={modal.reservation ?? null}

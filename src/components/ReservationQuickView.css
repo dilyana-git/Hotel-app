@@ -1,0 +1,178 @@
+.qv-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 16px;
+  animation: fadeIn .15s ease;
+}
+@keyframes fadeIn { from { opacity:0 } to { opacity:1 } }
+
+.qv-card {
+  background: var(--white);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.22);
+  overflow: hidden;
+  animation: slideUp .2s ease;
+}
+@keyframes slideUp {
+  from { transform: translateY(16px); opacity:0 }
+  to   { transform: translateY(0);    opacity:1 }
+}
+
+/* ── Header ───────────────────────────────────────── */
+.qv-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 20px 20px 14px;
+  gap: 12px;
+}
+.qv-guest {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--gray-900);
+  line-height: 1.2;
+  margin-bottom: 4px;
+}
+.qv-room-tag {
+  font-size: .78rem;
+  color: var(--gray-400);
+  font-weight: 500;
+}
+
+/* ── Stay info ────────────────────────────────────── */
+.qv-stay {
+  padding: 0 20px 16px;
+  border-bottom: 1px solid var(--gray-100);
+}
+.qv-stay-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.qv-stay-block {
+  flex: 1;
+  background: var(--gray-50);
+  border-radius: var(--radius);
+  padding: 8px 10px;
+}
+.qv-stay-lbl {
+  display: block;
+  font-size: .65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: var(--gray-400);
+  margin-bottom: 3px;
+}
+.qv-stay-val {
+  display: block;
+  font-size: .88rem;
+  font-weight: 700;
+  color: var(--gray-900);
+}
+.qv-stay-arrow {
+  font-size: 1.1rem;
+  color: var(--gray-300);
+  flex-shrink: 0;
+}
+.qv-stay-meta {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: .78rem;
+  color: var(--gray-500);
+  font-weight: 500;
+}
+.qv-stay-meta span::before {
+  content: '';
+}
+.qv-notes {
+  margin-top: 8px;
+  font-size: .78rem;
+  color: var(--gray-500);
+  font-style: italic;
+  padding: 6px 10px;
+  background: var(--gray-50);
+  border-radius: var(--radius);
+  border-left: 3px solid var(--gray-200);
+}
+
+/* ── Payment section ──────────────────────────────── */
+.qv-section-label {
+  padding: 14px 20px 8px;
+  font-size: .68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: var(--gray-400);
+}
+
+.qv-status-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0 20px 16px;
+}
+
+.qv-status-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius);
+  background: var(--white);
+  cursor: pointer;
+  font-family: var(--font);
+  text-align: left;
+  transition: border-color .15s, background .15s;
+}
+.qv-status-btn:not(.active):hover {
+  border-color: var(--gray-400);
+  background: var(--gray-50);
+}
+.qv-status-btn.active {
+  border-width: 2px;
+}
+
+.qv-st-check {
+  width: 18px;
+  font-size: .85rem;
+  font-weight: 800;
+  flex-shrink: 0;
+  text-align: center;
+}
+.qv-st-label {
+  flex: 1;
+  font-size: .9rem;
+  font-weight: 600;
+}
+.qv-st-sub {
+  font-size: .78rem;
+  font-weight: 700;
+  opacity: .75;
+}
+
+/* ── Actions ──────────────────────────────────────── */
+.qv-actions {
+  display: flex;
+  gap: 8px;
+  padding: 12px 20px 20px;
+  border-top: 1px solid var(--gray-100);
+  justify-content: space-between;
+}
+
+/* ── Mobile ───────────────────────────────────────── */
+@media (max-width: 480px) {
+  .qv-card { border-radius: 16px 16px 0 0; align-self: flex-end }
+  .qv-overlay { align-items: flex-end; padding: 0 }
+}
