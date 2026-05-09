@@ -1,0 +1,209 @@
+.config-page {
+  max-width: 680px;
+  margin: 24px auto;
+  padding: 0 16px 80px;
+}
+
+.config-toolbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 12px;
+}
+.config-toolbar h2 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--gray-900);
+}
+.config-hint {
+  font-size: .78rem;
+  color: var(--gray-400);
+  margin-top: 4px;
+  max-width: 400px;
+  line-height: 1.5;
+}
+
+/* ── Season list ──────────────────────────────────── */
+.season-list { display: flex; flex-direction: column; gap: 16px }
+.season-empty {
+  text-align: center;
+  padding: 40px;
+  color: var(--gray-400);
+  border: 2px dashed var(--gray-200);
+  border-radius: var(--radius);
+}
+
+/* ── Season card ──────────────────────────────────── */
+.season-card {
+  background: var(--white);
+  border: 1.5px solid var(--gray-200);
+  border-radius: 12px;
+  padding: 16px 20px 20px;
+  box-shadow: var(--shadow);
+}
+
+.season-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.season-name-input {
+  flex: 1;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--gray-900);
+  border: none;
+  border-bottom: 2px solid var(--gray-200);
+  padding: 4px 0;
+  background: transparent;
+  outline: none;
+  font-family: var(--font);
+  transition: border-color .15s;
+}
+.season-name-input:focus { border-color: var(--blue) }
+
+/* ── Date range ───────────────────────────────────── */
+.season-dates {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+  padding: 10px 12px;
+  background: var(--gray-50);
+  border-radius: var(--radius);
+}
+.date-lbl {
+  font-size: .75rem;
+  font-weight: 600;
+  color: var(--gray-500);
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  min-width: 28px;
+}
+.season-dates select {
+  padding: 5px 8px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius);
+  font-size: .85rem;
+  background: var(--white);
+  color: var(--gray-900);
+  cursor: pointer;
+  font-family: var(--font);
+  outline: none;
+}
+.season-dates select:focus { border-color: var(--blue) }
+.day-inp {
+  width: 54px;
+  padding: 5px 8px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius);
+  font-size: .85rem;
+  background: var(--white);
+  color: var(--gray-900);
+  outline: none;
+  font-family: var(--font);
+  text-align: center;
+}
+.day-inp:focus { border-color: var(--blue) }
+
+/* ── Prices table ─────────────────────────────────── */
+.prices-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .88rem;
+}
+.prices-table th {
+  text-align: left;
+  padding: 6px 10px;
+  font-size: .7rem;
+  font-weight: 700;
+  color: var(--gray-400);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  border-bottom: 2px solid var(--gray-100);
+}
+.prices-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--gray-100);
+  vertical-align: middle;
+}
+.prices-table tr:last-child td { border-bottom: none }
+
+.type-chip {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-size: .75rem;
+  font-weight: 700;
+}
+.chip-room { background: hsl(213,52%,86%); color: hsl(213,58%,26%) }
+.chip-apt  { background: hsl(163,52%,84%); color: hsl(163,58%,22%) }
+
+.price-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 120px;
+}
+.currency {
+  font-size: .85rem;
+  color: var(--gray-500);
+  font-weight: 600;
+}
+.price-inp {
+  width: 80px;
+  padding: 6px 8px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius);
+  font-size: .9rem;
+  font-family: var(--font);
+  color: var(--gray-900);
+  outline: none;
+  text-align: right;
+}
+.price-inp:focus { border-color: var(--blue) }
+
+.adv-cell {
+  color: var(--gray-500);
+  font-size: .82rem;
+  font-weight: 600;
+}
+
+.no-types-hint {
+  font-size: .82rem;
+  color: var(--gray-400);
+  padding: 8px 0;
+}
+
+/* ── Save bar ─────────────────────────────────────── */
+.config-save-bar {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  padding: 12px 24px;
+  background: var(--white);
+  border-top: 1px solid var(--gray-200);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+  z-index: 50;
+}
+.save-ok { color: var(--green); font-size: .85rem; font-weight: 600 }
+
+/* ── Remove btn (shared, same as RoomsManager) ────── */
+.remove-btn {
+  width: 28px; height: 28px;
+  border: none;
+  background: transparent;
+  border-radius: 50%;
+  font-size: .85rem;
+  color: var(--gray-400);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: background .15s, color .15s;
+}
+.remove-btn:hover { background: var(--red-lt); color: var(--red) }

@@ -1,3 +1,44 @@
+/* ── Legend ───────────────────────────────────────── */
+.grid-legend {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding: 8px 16px;
+  background: var(--gray-50);
+  border-bottom: 1px solid var(--gray-200);
+  font-size: .72rem;
+}
+.legend-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.legend-cat {
+  font-weight: 700;
+  color: var(--gray-500);
+  font-size: .68rem;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  margin-right: 2px;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--gray-500);
+  white-space: nowrap;
+}
+.legend-swatch {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  border: 2px solid;
+  flex-shrink: 0;
+}
+
 /* ── Scroll container ─────────────────────────────── */
 .grid-wrapper {
   flex: 1;
@@ -183,19 +224,16 @@
   color: var(--gray-500);
   font-weight: 600;
 }
-.badge-paid {
-  font-size: .62rem;
-  background: var(--green-lt);
-  color: var(--green);
+.status-dot {
+  font-size: .58rem;
+  font-weight: 800;
   padding: 1px 5px;
   border-radius: 99px;
-  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .3px;
+  opacity: .85;
 }
-.badge-unpaid {
-  font-size: .62rem;
-  background: #FEF3C7;
-  color: var(--orange);
-  padding: 1px 5px;
-  border-radius: 99px;
-  font-weight: 700;
-}
+/* Colors inherit from the block's text color via currentColor */
+.dot-paid     { background: rgba(0,0,0,.12) }
+.dot-advance  { background: rgba(0,0,0,.10) }
+.dot-reserved { background: rgba(0,0,0,.07) }

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { scoreRooms, fitLabel } from '../utils/roomScoring'
+import { calcTotalPrice, advanceOf } from '../utils/pricing'
 import './ReservationModal.css'
 
 function addDays(dateStr, n) {
@@ -23,54 +24,87 @@ function hasConflict(reservations, roomId, checkIn, checkOut, excludeId) {
 
 function gapDesc(gaps) {
   const parts = []
-  if (gaps.before === 0) parts.push('back-to-back after prev. guest')
+  if (gaps.before === 0)      parts.push('back-to-back after prev. guest')
   else if (gaps.before === 1) parts.push('1 day after prev. guest')
   else if (gaps.before != null) parts.push(`${gaps.before}d gap before`)
 
-  if (gaps.after === 0) parts.push('back-to-back before next guest')
-  else if (gaps.after === 1) parts.push('1 day before next guest')
-  else if (gaps.after != null) parts.push(`${gaps.after}d gap after`)
+  if (gaps.after === 0)       parts.push('back-to-back before next guest')
+  else if (gaps.after === 1)  parts.push('1 day before next guest')
+  else if (gaps.after != null)  parts.push(`${gaps.after}d gap after`)
 
   return parts.join(' · ') || 'No adjacent bookings'
 }
 
+// Migrate old paid:boolean → paymentStatus string
+function resolveStatus(res) {
+  if (!res) return 'reserved'
+  if (res.paymentStatus) return res.paymentStatus
+  return res.paid ? 'paid' : 'reserved'
+}
+
+const PAYMENT_OPTIONS = [
+  { value: 'reserved', label: 'Reserved — no payment yet' },
+  { value: 'advance',  label: 'Advance paid (30%)' },
+  { value: 'paid',     label: 'Fully paid' },
+]
+
 export default function ReservationModal({
   mode, reservation, initialRoomId, initialDate,
-  rooms, reservations, onSave, onDelete, onClose,
+  rooms, seasons, reservations, onSave, onDelete, onClose,
 }) {
   const firstInputRef = useRef(null)
   const defaultCheckIn  = initialDate ?? ''
   const defaultCheckOut = initialDate ? addDays(initialDate, 1) : ''
 
   const [form, setForm] = useState({
-    guestName: '',
-    phone: '',
-    roomId: initialRoomId ?? rooms[0]?.id ?? '',
-    checkIn:  defaultCheckIn,
-    checkOut: defaultCheckOut,
-    price: '',
-    paid: false,
-    notes: '',
+    guestName:     '',
+    phone:         '',
+    roomId:        initialRoomId ?? rooms[0]?.id ?? '',
+    checkIn:       defaultCheckIn,
+    checkOut:      defaultCheckOut,
+    price:         '',
+    paymentStatus: 'reserved',
+    notes:         '',
   })
-  const [error, setError]             = useState('')
-  const [showAllRooms, setShowAll]    = useState(false)
+  const [priceOverridden, setPriceOverridden] = useState(false)
+  const [error, setError]   = useState('')
+  const [showAll, setShowAll] = useState(false)
 
   useEffect(() => {
     if (mode === 'edit' && reservation) {
       setForm({
-        guestName: reservation.guestName ?? '',
-        phone:     reservation.phone     ?? '',
-        roomId:    reservation.roomId,
-        checkIn:   reservation.checkIn,
-        checkOut:  reservation.checkOut,
-        price:     reservation.price ?? '',
-        paid:      reservation.paid  ?? false,
-        notes:     reservation.notes ?? '',
+        guestName:     reservation.guestName     ?? '',
+        phone:         reservation.phone         ?? '',
+        roomId:        reservation.roomId,
+        checkIn:       reservation.checkIn,
+        checkOut:      reservation.checkOut,
+        price:         reservation.price         ?? '',
+        paymentStatus: resolveStatus(reservation),
+        notes:         reservation.notes         ?? '',
       })
     }
   }, [mode, reservation])
 
   useEffect(() => { firstInputRef.current?.focus() }, [])
+
+  // Auto-calculate price whenever room or dates change (unless user overrode it)
+  const selectedRoom = rooms.find(r => r.id === form.roomId)
+  const autoPrice = useMemo(() => {
+    if (!form.checkIn || !form.checkOut || !selectedRoom) return null
+    return calcTotalPrice(
+      form.checkIn, form.checkOut,
+      selectedRoom.type,
+      seasons ?? [],
+      selectedRoom.price ?? null
+    )
+  }, [form.checkIn, form.checkOut, form.roomId, seasons, rooms])
+
+  // Apply auto-price only when not overridden
+  useEffect(() => {
+    if (!priceOverridden && autoPrice !== null) {
+      setForm(prev => ({ ...prev, price: autoPrice }))
+    }
+  }, [autoPrice, priceOverridden])
 
   function set(field, value) {
     setError('')
@@ -80,19 +114,20 @@ export default function ReservationModal({
         if (!prev.checkOut || prev.checkOut <= value) {
           next.checkOut = addDays(value, 1)
         }
+        setPriceOverridden(false) // reset override when dates change
       }
-      // Auto-set price when room changes, if price is empty
       if (field === 'roomId') {
-        const room = rooms.find(r => r.id === value)
-        if (room && !prev.price) {
-          next.price = room.price
-        }
+        setPriceOverridden(false)
       }
       return next
     })
   }
 
-  // Score available rooms whenever dates change
+  function setPrice(val) {
+    setPriceOverridden(true)
+    setForm(prev => ({ ...prev, price: val }))
+  }
+
   const scored = useMemo(() => {
     if (!form.checkIn || !form.checkOut || form.checkOut <= form.checkIn) return []
     return scoreRooms(rooms, form.checkIn, form.checkOut, reservations, reservation?.id)
@@ -107,16 +142,13 @@ export default function ReservationModal({
     if (!form.guestName.trim()) { setError('Guest name is required.'); return }
     if (!form.checkIn)          { setError('Check-in date is required.'); return }
     if (!form.checkOut)         { setError('Check-out date is required.'); return }
-    if (form.checkOut <= form.checkIn) {
-      setError('Check-out must be after check-in.'); return
-    }
+    if (form.checkOut <= form.checkIn) { setError('Check-out must be after check-in.'); return }
     if (hasConflict(reservations, form.roomId, form.checkIn, form.checkOut, reservation?.id)) {
       setError('This room is already booked for part of that period.'); return
     }
     onSave({
       ...form,
-      id:    mode === 'edit' ? reservation.id    : undefined,
-      color: mode === 'edit' ? reservation.color : undefined,
+      id: mode === 'edit' ? reservation.id : undefined,
     })
   }
 
@@ -126,11 +158,11 @@ export default function ReservationModal({
     }
   }
 
-  const nights   = nightsBetween(form.checkIn, form.checkOut)
-  const roomName = rooms.find(r => r.id === form.roomId)?.name ?? ''
-
-  // Rooms shown in the smart picker (top 5 unless expanded)
-  const visibleScored = showAllRooms ? scored : scored.slice(0, 5)
+  const nights      = nightsBetween(form.checkIn, form.checkOut)
+  const roomName    = selectedRoom?.name ?? ''
+  const totalPrice  = Number(form.price) || 0
+  const advance     = totalPrice > 0 ? advanceOf(totalPrice) : 0
+  const visibleScored = showAll ? scored : scored.slice(0, 5)
 
   return (
     <div className="overlay" onClick={onClose}>
@@ -141,62 +173,41 @@ export default function ReservationModal({
         </div>
 
         <form onSubmit={handleSubmit} noValidate>
-          {/* Guest info */}
           <div className="field">
             <label>Guest Name <span className="req">*</span></label>
-            <input
-              ref={firstInputRef}
-              type="text"
-              value={form.guestName}
-              onChange={e => set('guestName', e.target.value)}
-              placeholder="Full name"
-            />
+            <input ref={firstInputRef} type="text" value={form.guestName}
+              onChange={e => set('guestName', e.target.value)} placeholder="Full name" />
           </div>
 
           <div className="field">
             <label>Phone Number</label>
-            <input
-              type="tel"
-              value={form.phone}
-              onChange={e => set('phone', e.target.value)}
-              placeholder="+1 234 567 8900"
-            />
+            <input type="tel" value={form.phone}
+              onChange={e => set('phone', e.target.value)} placeholder="+1 234 567 8900" />
           </div>
 
-          {/* Dates */}
           <div className="field-row">
             <div className="field">
               <label>Check-in</label>
-              <input
-                type="date"
-                value={form.checkIn}
-                onChange={e => set('checkIn', e.target.value)}
-              />
+              <input type="date" value={form.checkIn}
+                onChange={e => set('checkIn', e.target.value)} />
             </div>
             <div className="field">
               <label>Check-out</label>
-              <input
-                type="date"
-                value={form.checkOut}
+              <input type="date" value={form.checkOut}
                 min={form.checkIn ? addDays(form.checkIn, 1) : ''}
-                onChange={e => set('checkOut', e.target.value)}
-              />
+                onChange={e => set('checkOut', e.target.value)} />
             </div>
           </div>
 
           {nights > 0 && (
-            <div className="nights-pill">
-              {nights} night{nights !== 1 ? 's' : ''} · {roomName}
-            </div>
+            <div className="nights-pill">{nights} night{nights !== 1 ? 's' : ''} · {roomName}</div>
           )}
 
-          {/* ── Smart room picker ─────────────────────── */}
+          {/* ── Smart room picker ── */}
           <div className="field">
             <label>
               Room
-              {scored.length > 0 && (
-                <span className="label-hint"> — sorted by best fit</span>
-              )}
+              {scored.length > 0 && <span className="label-hint"> — sorted by best fit</span>}
             </label>
 
             {scored.length > 0 ? (
@@ -206,9 +217,7 @@ export default function ReservationModal({
                     const lbl      = fitLabel(score)
                     const selected = form.roomId === room.id
                     return (
-                      <button
-                        key={room.id}
-                        type="button"
+                      <button key={room.id} type="button"
                         className={`room-option ${selected ? 'selected' : ''}`}
                         onClick={() => set('roomId', room.id)}
                       >
@@ -217,7 +226,8 @@ export default function ReservationModal({
                             {room.name}
                             {i === 0 && <span className="star-badge">★ Best</span>}
                           </span>
-                          <span className="fit-badge" style={{ color: lbl.color, borderColor: lbl.color + '55', background: lbl.color + '12' }}>
+                          <span className="fit-badge"
+                            style={{ color: lbl.color, borderColor: lbl.color+'55', background: lbl.color+'12' }}>
                             {lbl.text}
                           </span>
                         </div>
@@ -226,31 +236,19 @@ export default function ReservationModal({
                     )
                   })}
                 </div>
-
                 {scored.length > 5 && (
-                  <button
-                    type="button"
-                    className="show-more-btn"
-                    onClick={() => setShowAll(v => !v)}
-                  >
-                    {showAllRooms
-                      ? 'Show fewer rooms'
-                      : `Show all ${scored.length} available rooms`}
+                  <button type="button" className="show-more-btn"
+                    onClick={() => setShowAll(v => !v)}>
+                    {showAll ? 'Show fewer rooms' : `Show all ${scored.length} available rooms`}
                   </button>
                 )}
-
-                {/* Warn if a non-optimal room is selected */}
-                {currentScore && !isBestRoom && (() => {
-                  const lbl = fitLabel(currentScore.score)
-                  return lbl.text === 'Creates gap' ? (
-                    <div className="room-warn">
-                      ⚠ This room will leave a gap. Consider <strong>{bestRoom.room.name}</strong> for a better fit.
-                    </div>
-                  ) : null
-                })()}
+                {currentScore && !isBestRoom && fitLabel(currentScore.score).text === 'Creates gap' && (
+                  <div className="room-warn">
+                    ⚠ This room will leave a gap. Consider <strong>{bestRoom.room.name}</strong> for a better fit.
+                  </div>
+                )}
               </>
             ) : (
-              /* Fallback plain select when dates not set yet */
               <select value={form.roomId} onChange={e => set('roomId', e.target.value)}>
                 {rooms.map(r => (
                   <option key={r.id} value={r.id}>{r.name}{r.type ? ` — ${r.type}` : ''}</option>
@@ -259,49 +257,60 @@ export default function ReservationModal({
             )}
           </div>
 
-          {/* Price */}
+          {/* ── Price & payment ── */}
           <div className="field-row">
             <div className="field">
-              <label>Price</label>
-              <input
-                type="number"
-                value={form.price}
-                onChange={e => set('price', e.target.value)}
-                placeholder="0.00"
-                min="0"
-                step="0.01"
-              />
-            </div>
-            <div className="field field-check">
-              <label className="check-label">
-                <input
-                  type="checkbox"
-                  checked={form.paid}
-                  onChange={e => set('paid', e.target.checked)}
-                />
-                <span>Paid</span>
+              <label>
+                Total Price
+                {autoPrice !== null && !priceOverridden && (
+                  <span className="label-hint"> — auto from season</span>
+                )}
               </label>
+              <div className="price-field-wrap">
+                <span className="currency-prefix">€</span>
+                <input type="number" value={form.price}
+                  onChange={e => setPrice(e.target.value)}
+                  placeholder="0" min="0" step="1" />
+              </div>
+            </div>
+
+            <div className="field">
+              <label>Payment Status</label>
+              <select value={form.paymentStatus}
+                onChange={e => set('paymentStatus', e.target.value)}>
+                {PAYMENT_OPTIONS.map(o => (
+                  <option key={o.value} value={o.value}>{o.label}</option>
+                ))}
+              </select>
             </div>
           </div>
 
-          {/* Notes */}
+          {/* Payment summary pill */}
+          {totalPrice > 0 && (
+            <div className={`payment-summary status-${form.paymentStatus}`}>
+              {form.paymentStatus === 'reserved' && (
+                <span>Total: <strong>€ {totalPrice}</strong> — no payment collected</span>
+              )}
+              {form.paymentStatus === 'advance' && (
+                <span>Advance paid: <strong>€ {advance}</strong> — remaining: <strong>€ {totalPrice - advance}</strong></span>
+              )}
+              {form.paymentStatus === 'paid' && (
+                <span>Fully paid: <strong>€ {totalPrice}</strong></span>
+              )}
+            </div>
+          )}
+
           <div className="field">
             <label>Notes</label>
-            <textarea
-              value={form.notes}
-              onChange={e => set('notes', e.target.value)}
-              placeholder="Special requests, early check-in, etc."
-              rows={3}
-            />
+            <textarea value={form.notes} onChange={e => set('notes', e.target.value)}
+              placeholder="Special requests, early check-in, etc." rows={3} />
           </div>
 
           {error && <div className="form-error">{error}</div>}
 
           <div className="modal-foot">
             {mode === 'edit' && (
-              <button type="button" className="btn btn-danger" onClick={handleDelete}>
-                Delete
-              </button>
+              <button type="button" className="btn btn-danger" onClick={handleDelete}>Delete</button>
             )}
             <div className="foot-right">
               <button type="button" className="btn btn-ghost" onClick={onClose}>Cancel</button>
