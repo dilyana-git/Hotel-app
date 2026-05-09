@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { reservationColor, legendItems } from '../utils/colors'
 import './BookingGrid.css'
 
-const DAY_ABBR = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
+const DAY_ABBR = ['Нед','Пон','Вто','Сря','Чет','Пет','Саб']
 
 function daysInMonth(year, month) { return new Date(year, month, 0).getDate() }
 function toDateStr(y, m, d) {
@@ -55,12 +55,12 @@ function buildGrid(year, month, rooms, reservations) {
 function Legend({ rooms }) {
   const legend = legendItems()
   const hasApt = rooms.some(r => r.type === 'Apartment')
-  const labels = { reserved: 'Reserved', advance: 'Advance', paid: 'Paid' }
+  const labels = { reserved: 'Резервирано', advance: 'Авансово', paid: 'Платено' }
 
   return (
     <div className="grid-legend">
       <div className="legend-group">
-        <span className="legend-cat">Room</span>
+        <span className="legend-cat">Стая</span>
         {legend.room.map(item => (
           <span key={item.key} className="legend-item">
             <span className="legend-swatch" style={{ background: item.bg, borderColor: item.border }} />
@@ -70,7 +70,7 @@ function Legend({ rooms }) {
       </div>
       {hasApt && (
         <div className="legend-group">
-          <span className="legend-cat">Apartment</span>
+          <span className="legend-cat">Апартамент</span>
           {legend.apt.map(item => (
             <span key={item.key} className="legend-item">
               <span className="legend-swatch" style={{ background: item.bg, borderColor: item.border }} />
@@ -170,8 +170,8 @@ export default function BookingGrid({ year, month, rooms, reservations, onCellCl
   if (rooms.length === 0) {
     return (
       <div className="empty-state">
-        <p>No rooms configured yet.</p>
-        <p>Go to <strong>Rooms</strong> to add your rooms.</p>
+        <p>Все още не са конфигурирани стаи.</p>
+        <p>Отидете на <strong>Стаи</strong> за да добавите стаи.</p>
       </div>
     )
   }
@@ -188,7 +188,7 @@ export default function BookingGrid({ year, month, rooms, reservations, onCellCl
         <table className="booking-table">
           <thead>
             <tr>
-              <th className="date-header sticky-col sticky-head">Date</th>
+              <th className="date-header sticky-col sticky-head">Дата</th>
               {rooms.map(r => (
                 <th key={r.id} className="room-header sticky-head">
                   <div className="room-hdr-name">{r.name}</div>
@@ -246,9 +246,9 @@ export default function BookingGrid({ year, month, rooms, reservations, onCellCl
                             {res.phone && <div className="res-phone">{res.phone}</div>}
                             <div className="res-meta">
                               <span className="res-nights">{nights}n</span>
-                              {status === 'paid'    && <span className="status-dot dot-paid">paid</span>}
-                              {status === 'advance' && <span className="status-dot dot-advance">adv.</span>}
-                              {status === 'reserved'&& <span className="status-dot dot-reserved">rsv.</span>}
+                              {status === 'paid'    && <span className="status-dot dot-paid">плач.</span>}
+                              {status === 'advance' && <span className="status-dot dot-advance">авн.</span>}
+                              {status === 'reserved'&& <span className="status-dot dot-reserved">рез.</span>}
                             </div>
                           </div>
                         </td>
@@ -264,7 +264,7 @@ export default function BookingGrid({ year, month, rooms, reservations, onCellCl
                         onMouseDown={e => { e.preventDefault(); startDrag(room.id, day) }}
                         onMouseEnter={() => extendDrag(room.id, day)}
                         onTouchStart={e => { e.preventDefault(); startDrag(room.id, day) }}
-                        title={`Add reservation — ${room.name}`}
+                        title={`Добави резервация — ${room.name}`}
                       />
                     )
                   })}

@@ -6,8 +6,8 @@ import RoomsManager from './components/RoomsManager'
 import ConfigPage from './components/ConfigPage'
 
 const MONTHS = [
-  'January','February','March','April','May','June',
-  'July','August','September','October','November','December'
+  'Януари','Февруари','Март','Април','Май','Юни',
+  'Юли','Август','Септември','Октомври','Ноември','Декември'
 ]
 
 function load(key, fallback) {
@@ -35,9 +35,9 @@ const DEFAULT_ROOMS = [
 ]
 
 const DEFAULT_SEASONS = [
-  { id:'s1', name:'Low Season',  from:'01-01', to:'05-31', prices:{ Room: 80,  Apartment: 120 } },
-  { id:'s2', name:'High Season', from:'06-01', to:'08-31', prices:{ Room: 140, Apartment: 210 } },
-  { id:'s3', name:'Shoulder',    from:'09-01', to:'12-31', prices:{ Room: 100, Apartment: 150 } },
+  { id:'s1', name:'Нисък сезон',  from:'01-01', to:'05-31', prices:{ Room: 80,  Apartment: 120 } },
+  { id:'s2', name:'Висок сезон', from:'06-01', to:'08-31', prices:{ Room: 140, Apartment: 210 } },
+  { id:'s3', name:'Преходен',    from:'09-01', to:'12-31', prices:{ Room: 100, Apartment: 150 } },
 ]
 
 export default function App() {
@@ -112,13 +112,13 @@ export default function App() {
       <header className="app-header">
         <div className="header-brand">
           <span className="brand-icon">🏨</span>
-          <span className="brand-name">Hotel Manager</span>
+          <span className="brand-name">Хотелски Мениджър</span>
         </div>
         <nav className="header-nav">
           {[
-            { key: 'grid',   icon: '📅', label: 'Bookings' },
-            { key: 'rooms',  icon: '🚪', label: 'Rooms' },
-            { key: 'config', icon: '⚙️', label: 'Pricing' },
+            { key: 'grid',   icon: '📅', label: 'Резервации' },
+            { key: 'rooms',  icon: '🚪', label: 'Стаи' },
+            { key: 'config', icon: '⚙️', label: 'Цени' },
           ].map(t => (
             <button
               key={t.key}
@@ -139,7 +139,7 @@ export default function App() {
             <div className="month-center">
               <h2 className="month-title">{MONTHS[month - 1]} {year}</h2>
               {!isCurrentMonth && (
-                <button className="today-btn" onClick={goToday}>Today</button>
+                <button className="today-btn" onClick={goToday}>Днес</button>
               )}
             </div>
             <button className="month-arrow" onClick={nextMonth}>›</button>

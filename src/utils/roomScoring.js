@@ -97,9 +97,9 @@ export function findSwapSuggestions(rooms, checkIn, checkOut, allReservations, e
 }
 
 export function fitLabel(score) {
-  if (score <= -8)  return { text: 'Perfect fit',  color: '#16A34A' }
-  if (score <= 0)   return { text: 'Great fit',    color: '#2563EB' }
-  if (score <= 10)  return { text: 'Good',         color: '#9333EA' }
-  if (score <= 20)  return { text: 'Acceptable',   color: '#EA580C' }
-  return              { text: 'Creates gap',  color: '#DC2626' }
+  if (score <= -8)  return { text: 'Идеално съответствие',  color: '#16A34A' }
+  if (score <= 0)   return { text: 'Отличен избор',    color: '#2563EB' }
+  if (score <= 10)  return { text: 'Добро',         color: '#9333EA' }
+  if (score <= 20)  return { text: 'Приемливо',   color: '#EA580C' }
+  return              { text: 'Оставя празнина',  color: '#DC2626' }
 }

@@ -24,15 +24,15 @@ function hasConflict(reservations, roomId, checkIn, checkOut, excludeId) {
 
 function gapDesc(gaps) {
   const parts = []
-  if (gaps.before === 0)      parts.push('back-to-back after prev. guest')
-  else if (gaps.before === 1) parts.push('1 day after prev. guest')
-  else if (gaps.before != null) parts.push(`${gaps.before}d gap before`)
+  if (gaps.before === 0)      parts.push('идва след предния гост')
+  else if (gaps.before === 1) parts.push('1 ден след предния гост')
+  else if (gaps.before != null) parts.push(`${gaps.before}д преди`)
 
-  if (gaps.after === 0)       parts.push('back-to-back before next guest')
-  else if (gaps.after === 1)  parts.push('1 day before next guest')
-  else if (gaps.after != null)  parts.push(`${gaps.after}d gap after`)
+  if (gaps.after === 0)       parts.push('идва преди следващия гост')
+  else if (gaps.after === 1)  parts.push('1 ден преди следващия гост')
+  else if (gaps.after != null)  parts.push(`${gaps.after}д след`)
 
-  return parts.join(' · ') || 'No adjacent bookings'
+  return parts.join(' · ') || 'Няма съседни резервации'
 }
 
 // Migrate old paid:boolean → paymentStatus string
@@ -43,9 +43,9 @@ function resolveStatus(res) {
 }
 
 const PAYMENT_OPTIONS = [
-  { value: 'reserved', label: 'Reserved — no payment yet' },
-  { value: 'advance',  label: 'Advance paid (30%)' },
-  { value: 'paid',     label: 'Fully paid' },
+  { value: 'reserved', label: 'Резервирано — без плащане' },
+  { value: 'advance',  label: 'Авансово платено (30%)' },
+  { value: 'paid',     label: 'Напълно платено' },
 ]
 
 export default function ReservationModal({
@@ -149,12 +149,12 @@ export default function ReservationModal({
 
   function handleSubmit(e) {
     e.preventDefault()
-    if (!form.guestName.trim()) { setError('Guest name is required.'); return }
-    if (!form.checkIn)          { setError('Check-in date is required.'); return }
-    if (!form.checkOut)         { setError('Check-out date is required.'); return }
-    if (form.checkOut <= form.checkIn) { setError('Check-out must be after check-in.'); return }
+    if (!form.guestName.trim()) { setError('Име на гост е задължително.'); return }
+    if (!form.checkIn)          { setError('Датата на чек-ин е задължителна.'); return }
+    if (!form.checkOut)         { setError('Датата на чек-аут е задължителна.'); return }
+    if (form.checkOut <= form.checkIn) { setError('Чек-аутът трябва да е след чек-ина.'); return }
     if (hasConflict(reservations, form.roomId, form.checkIn, form.checkOut, reservation?.id)) {
-      setError('This room is already booked for part of that period.'); return
+      setError('Тази стая вече е резервирана за част от този период.'); return
     }
     onSave({
       ...form,
@@ -163,7 +163,7 @@ export default function ReservationModal({
   }
 
   function handleDelete() {
-    if (window.confirm(`Delete reservation for ${reservation.guestName}?`)) {
+    if (window.confirm(`Изтрий резервацията за ${reservation.guestName}?`)) {
       onDelete(reservation.id)
     }
   }
@@ -178,31 +178,31 @@ export default function ReservationModal({
     <div className="overlay" onClick={onClose}>
       <div className="modal" onClick={e => e.stopPropagation()}>
         <div className="modal-head">
-          <h2>{mode === 'add' ? 'New Reservation' : 'Edit Reservation'}</h2>
-          <button className="close-x" onClick={onClose} aria-label="Close">×</button>
+          <h2>{mode === 'add' ? 'Нова резервация' : 'Редактирай резервацията'}</h2>
+          <button className="close-x" onClick={onClose} aria-label="Затвори">×</button>
         </div>
 
         <form onSubmit={handleSubmit} noValidate>
           <div className="field">
-            <label>Guest Name <span className="req">*</span></label>
+            <label>Име на гост <span className="req">*</span></label>
             <input ref={firstInputRef} type="text" value={form.guestName}
-              onChange={e => set('guestName', e.target.value)} placeholder="Full name" />
+              onChange={e => set('guestName', e.target.value)} placeholder="Пълно име" />
           </div>
 
           <div className="field">
-            <label>Phone Number</label>
+            <label>Телефонен номер</label>
             <input type="tel" value={form.phone}
-              onChange={e => set('phone', e.target.value)} placeholder="+1 234 567 8900" />
+              onChange={e => set('phone', e.target.value)} placeholder="+359 98 123 4567" />
           </div>
 
           <div className="field-row">
             <div className="field">
-              <label>Check-in</label>
+              <label>Чек-ин</label>
               <input type="date" value={form.checkIn}
                 onChange={e => set('checkIn', e.target.value)} />
             </div>
             <div className="field">
-              <label>Check-out</label>
+              <label>Чек-аут</label>
               <input type="date" value={form.checkOut}
                 min={form.checkIn ? addDays(form.checkIn, 1) : ''}
                 onChange={e => set('checkOut', e.target.value)} />
@@ -210,14 +210,14 @@ export default function ReservationModal({
           </div>
 
           {nights > 0 && (
-            <div className="nights-pill">{nights} night{nights !== 1 ? 's' : ''} · {roomName}</div>
+            <div className="nights-pill">{nights} нощ{nights !== 1 ? 'и' : ''} · {roomName}</div>
           )}
 
           {/* ── Smart room picker ── */}
           <div className="field">
             <label>
-              Room
-              {scored.length > 0 && <span className="label-hint"> — sorted by best fit</span>}
+              Стая
+              {scored.length > 0 && <span className="label-hint"> — сортирано по най-добро съответствие</span>}
             </label>
 
             {scored.length > 0 ? (
@@ -234,7 +234,7 @@ export default function ReservationModal({
                         <div className="room-opt-top">
                           <span className="room-opt-name">
                             {room.name}
-                            {i === 0 && <span className="star-badge">★ Best</span>}
+                            {i === 0 && <span className="star-badge">★ Най-добро</span>}
                           </span>
                           <span className="fit-badge"
                             style={{ color: lbl.color, borderColor: lbl.color+'55', background: lbl.color+'12' }}>
@@ -249,12 +249,12 @@ export default function ReservationModal({
                 {scored.length > 5 && (
                   <button type="button" className="show-more-btn"
                     onClick={() => setShowAll(v => !v)}>
-                    {showAll ? 'Show fewer rooms' : `Show all ${scored.length} available rooms`}
+                    {showAll ? 'Покажи по-малко стаи' : `Покажи всички ${scored.length} налични стаи`}
                   </button>
                 )}
-                {currentScore && !isBestRoom && fitLabel(currentScore.score).text === 'Creates gap' && (
+                {currentScore && !isBestRoom && fitLabel(currentScore.score).text === 'Оставя празнина' && (
                   <div className="room-warn">
-                    ⚠ This room will leave a gap. Consider <strong>{bestRoom.room.name}</strong> for a better fit.
+                    ⚠ Тази стая ще остави празнина. Разгледайте <strong>{bestRoom.room.name}</strong> за по-добро съответствие.
                   </div>
                 )}
               </>
@@ -270,7 +270,7 @@ export default function ReservationModal({
           {/* ── Swap suggestions ── */}
           {swapSuggestions.length > 0 && (
             <div className="swap-section">
-              <div className="swap-section-label">Free up a room by moving an existing guest</div>
+              <div className="swap-section-label">Освободи стая като преместиш съществуващ гост</div>
               {swapSuggestions.map(s => {
                 const lbl = fitLabel(s.newScore)
                 return (
@@ -278,7 +278,7 @@ export default function ReservationModal({
                     <div className="swap-info">
                       <span className="swap-guest">{s.conflictRes.guestName}</span>
                       <span className="swap-route">
-                        Room {s.fromRoom.name} → Room {s.toRoom.name}
+                        Стая {s.fromRoom.name} → Стая {s.toRoom.name}
                       </span>
                     </div>
                     <div className="swap-item-right">
@@ -291,7 +291,7 @@ export default function ReservationModal({
                       </span>
                       <button type="button" className="btn btn-sm btn-ghost"
                         onClick={() => handleApplySwap(s)}>
-                        Apply
+                        Приложи
                       </button>
                     </div>
                   </div>
@@ -304,9 +304,9 @@ export default function ReservationModal({
           <div className="field-row">
             <div className="field">
               <label>
-                Total Price
+                Обща цена
                 {autoPrice !== null && !priceOverridden && (
-                  <span className="label-hint"> — auto from season</span>
+                  <span className="label-hint"> — автоматично от сезон</span>
                 )}
               </label>
               <div className="price-field-wrap">
@@ -318,7 +318,7 @@ export default function ReservationModal({
             </div>
 
             <div className="field">
-              <label>Payment Status</label>
+              <label>Статус на плащане</label>
               <select value={form.paymentStatus}
                 onChange={e => set('paymentStatus', e.target.value)}>
                 {PAYMENT_OPTIONS.map(o => (
@@ -332,33 +332,33 @@ export default function ReservationModal({
           {totalPrice > 0 && (
             <div className={`payment-summary status-${form.paymentStatus}`}>
               {form.paymentStatus === 'reserved' && (
-                <span>Total: <strong>€ {totalPrice}</strong> — no payment collected</span>
+                <span>Обща сума: <strong>€ {totalPrice}</strong> — без събрано плащане</span>
               )}
               {form.paymentStatus === 'advance' && (
-                <span>Advance paid: <strong>€ {advance}</strong> — remaining: <strong>€ {totalPrice - advance}</strong></span>
+                <span>Авансово платено: <strong>€ {advance}</strong> — оставащо: <strong>€ {totalPrice - advance}</strong></span>
               )}
               {form.paymentStatus === 'paid' && (
-                <span>Fully paid: <strong>€ {totalPrice}</strong></span>
+                <span>Напълно платено: <strong>€ {totalPrice}</strong></span>
               )}
             </div>
           )}
 
           <div className="field">
-            <label>Notes</label>
+            <label>Бележки</label>
             <textarea value={form.notes} onChange={e => set('notes', e.target.value)}
-              placeholder="Special requests, early check-in, etc." rows={3} />
+              placeholder="Специални заявки, ранен чек-ин, и т.н." rows={3} />
           </div>
 
           {error && <div className="form-error">{error}</div>}
 
           <div className="modal-foot">
             {mode === 'edit' && (
-              <button type="button" className="btn btn-danger" onClick={handleDelete}>Delete</button>
+              <button type="button" className="btn btn-danger" onClick={handleDelete}>Изтрий</button>
             )}
             <div className="foot-right">
-              <button type="button" className="btn btn-ghost" onClick={onClose}>Cancel</button>
+              <button type="button" className="btn btn-ghost" onClick={onClose}>Отмени</button>
               <button type="submit" className="btn btn-primary">
-                {mode === 'add' ? 'Save Reservation' : 'Update'}
+                {mode === 'add' ? 'Запази резервацията' : 'Актуализирай'}
               </button>
             </div>
           </div>

@@ -10,7 +10,7 @@ export default function RoomsManager({ rooms, onSave }) {
 
   function addRoom() {
     const id   = `r${Date.now()}`
-    const name = `Room ${list.length + 1}`
+    const name = `Стая ${list.length + 1}`
     setList(prev => [...prev, { id, name, type: 'Room', price: 100 }])
     setEditing(id)
     setSaved(false)
@@ -22,7 +22,7 @@ export default function RoomsManager({ rooms, onSave }) {
   }
 
   function remove(id) {
-    if (!window.confirm('Remove this room? Existing reservations will not be deleted.')) return
+    if (!window.confirm('Премахни тази стая? Съществуващите резервации няма да бъдат изтрити.')) return
     setList(prev => prev.filter(r => r.id !== id))
     setSaved(false)
   }
@@ -56,15 +56,15 @@ export default function RoomsManager({ rooms, onSave }) {
     <div className="rooms-page">
       <div className="rooms-toolbar">
         <div>
-          <h2>Manage Rooms</h2>
-          <p className="rooms-hint">{list.length} room{list.length !== 1 ? 's' : ''} · click a room to edit its name or type</p>
+          <h2>Управление на стаи</h2>
+          <p className="rooms-hint">{list.length} стая{list.length !== 1 ? 'и' : ''} · кликни на стая за редактиране на име или тип</p>
         </div>
-        <button className="btn btn-primary" onClick={addRoom}>+ Add Room</button>
+        <button className="btn btn-primary" onClick={addRoom}>+ Добави стая</button>
       </div>
 
       <div className="rooms-list">
         {list.length === 0 && (
-          <div className="rooms-empty">No rooms yet. Add your first room above.</div>
+          <div className="rooms-empty">Все още нямаше стаи. Добави първата си стая по-горе.</div>
         )}
 
         {list.map((room, idx) => (
@@ -74,13 +74,13 @@ export default function RoomsManager({ rooms, onSave }) {
                 className="order-btn"
                 onClick={() => moveUp(idx)}
                 disabled={idx === 0}
-                aria-label="Move up"
+                aria-label="Премести нагоре"
               >▲</button>
               <button
                 className="order-btn"
                 onClick={() => moveDown(idx)}
                 disabled={idx === list.length - 1}
-                aria-label="Move down"
+                aria-label="Премести надолу"
               >▼</button>
             </div>
 
@@ -90,7 +90,7 @@ export default function RoomsManager({ rooms, onSave }) {
                   type="text"
                   value={room.name}
                   onChange={e => update(room.id, 'name', e.target.value)}
-                  placeholder="Room name"
+                  placeholder="Име на стая"
                   autoFocus
                   onKeyDown={e => { if (e.key === 'Enter' || e.key === 'Escape') setEditing(null) }}
                 />
@@ -104,10 +104,10 @@ export default function RoomsManager({ rooms, onSave }) {
                   type="number"
                   value={room.price}
                   onChange={e => update(room.id, 'price', Number(e.target.value))}
-                  placeholder="Price"
+                  placeholder="Цена"
                   min="0"
                 />
-                <button className="btn btn-ghost btn-sm" onClick={() => setEditing(null)}>Done</button>
+                <button className="btn btn-ghost btn-sm" onClick={() => setEditing(null)}>Готово</button>
               </div>
             ) : (
               <div className="room-display" onClick={() => setEditing(room.id)}>
@@ -120,15 +120,15 @@ export default function RoomsManager({ rooms, onSave }) {
             <button
               className="remove-btn"
               onClick={() => remove(room.id)}
-              aria-label={`Remove ${room.name}`}
+              aria-label={`Премахни ${room.name}`}
             >✕</button>
           </div>
         ))}
       </div>
 
       <div className="rooms-save-bar">
-        {saved && <span className="save-ok">✓ Saved</span>}
-        <button className="btn btn-primary" onClick={save}>Save Changes</button>
+        {saved && <span className="save-ok">✓ Запазено</span>}
+        <button className="btn btn-primary" onClick={save}>Запази промените</button>
       </div>
     </div>
   )

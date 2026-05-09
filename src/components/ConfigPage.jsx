@@ -2,8 +2,8 @@ import { useState, useMemo } from 'react'
 import './ConfigPage.css'
 
 const FULL_MONTHS = [
-  'January','February','March','April','May','June',
-  'July','August','September','October','November','December'
+  'Януари','Февруари','Март','Април','Май','Юни',
+  'Юли','Август','Септември','Октомври','Ноември','Декември'
 ]
 
 function parseMD(md) {
@@ -16,9 +16,9 @@ function buildMD(m, d) {
 }
 
 const DEFAULT_SEASONS = [
-  { id:'s1', name:'Low Season',  from:'01-01', to:'05-31', prices:{} },
-  { id:'s2', name:'High Season', from:'06-01', to:'08-31', prices:{} },
-  { id:'s3', name:'Shoulder',    from:'09-01', to:'12-31', prices:{} },
+  { id:'s1', name:'Зимен сезон',  from:'01-01', to:'05-31', prices:{} },
+  { id:'s2', name:'Летен сезон', from:'06-01', to:'08-31', prices:{} },
+  { id:'s3', name:'Преходен',    from:'09-01', to:'12-31', prices:{} },
 ]
 
 export default function ConfigPage({ seasons: initialSeasons, rooms, onSave }) {
@@ -52,12 +52,12 @@ export default function ConfigPage({ seasons: initialSeasons, rooms, onSave }) {
   function addSeason() {
     const prices = {}
     roomTypes.forEach(t => { prices[t] = 0 })
-    setList(prev => [...prev, { id: `s${Date.now()}`, name: 'New Season', from: '01-01', to: '12-31', prices }])
+    setList(prev => [...prev, { id: `s${Date.now()}`, name: 'Нов сезон', from: '01-01', to: '12-31', prices }])
     setSaved(false)
   }
 
   function remove(id) {
-    if (!window.confirm('Remove this season?')) return
+    if (!window.confirm('Премахни този сезон?')) return
     setList(prev => prev.filter(s => s.id !== id))
     setSaved(false)
   }
@@ -68,18 +68,18 @@ export default function ConfigPage({ seasons: initialSeasons, rooms, onSave }) {
     <div className="config-page">
       <div className="config-toolbar">
         <div>
-          <h2>Season Pricing</h2>
+          <h2>Цени по сезон</h2>
           <p className="config-hint">
-            Nightly prices auto-fill when you create a reservation.
-            The 30% advance is calculated automatically.
+            Нощните цени се попълват автоматично при създаване на резервация.
+            30% авансът се изчислява автоматично.
           </p>
         </div>
-        <button className="btn btn-primary" onClick={addSeason}>+ Add Season</button>
+        <button className="btn btn-primary" onClick={addSeason}>+ Добави сезон</button>
       </div>
 
       <div className="season-list">
         {list.length === 0 && (
-          <div className="season-empty">No seasons yet. Add your first season above.</div>
+          <div className="season-empty">Все още нямаше сезони. Добави първия си сезон по-горе.</div>
         )}
 
         {list.map(season => {
@@ -94,13 +94,13 @@ export default function ConfigPage({ seasons: initialSeasons, rooms, onSave }) {
                   type="text"
                   value={season.name}
                   onChange={e => upd(season.id, { name: e.target.value })}
-                  placeholder="Season name"
+                  placeholder="Име на сезон"
                 />
                 <button className="remove-btn" onClick={() => remove(season.id)}>✕</button>
               </div>
 
               <div className="season-dates">
-                <span className="date-lbl">From</span>
+                <span className="date-lbl">От</span>
 
                 <select
                   value={fr.m}
@@ -114,7 +114,7 @@ export default function ConfigPage({ seasons: initialSeasons, rooms, onSave }) {
                   onChange={e => upd(season.id, { from: buildMD(fr.m, e.target.value) })}
                 />
 
-                <span className="date-lbl">to</span>
+                <span className="date-lbl">до</span>
 
                 <select
                   value={to.m}
@@ -133,9 +133,9 @@ export default function ConfigPage({ seasons: initialSeasons, rooms, onSave }) {
                 <table className="prices-table">
                   <thead>
                     <tr>
-                      <th>Room type</th>
-                      <th>Price / night</th>
-                      <th>30% advance</th>
+                      <th>Тип стая</th>
+                      <th>Цена / нощ</th>
+                      <th>30% авансово</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -172,7 +172,7 @@ export default function ConfigPage({ seasons: initialSeasons, rooms, onSave }) {
                   </tbody>
                 </table>
               ) : (
-                <p className="no-types-hint">Add rooms first, then come back to set prices.</p>
+                <p className="no-types-hint">Добави стаи първо, после се върни тук да зададеш цените.</p>
               )}
             </div>
           )
@@ -180,8 +180,8 @@ export default function ConfigPage({ seasons: initialSeasons, rooms, onSave }) {
       </div>
 
       <div className="config-save-bar">
-        {saved && <span className="save-ok">✓ Saved</span>}
-        <button className="btn btn-primary" onClick={save}>Save Season Prices</button>
+        {saved && <span className="save-ok">✓ Запазено</span>}
+        <button className="btn btn-primary" onClick={save}>Запази цените на сезоните</button>
       </div>
     </div>
   )

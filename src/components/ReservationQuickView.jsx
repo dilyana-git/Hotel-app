@@ -19,9 +19,9 @@ function resolveStatus(res) {
 }
 
 const STATUSES = [
-  { value: 'reserved', label: 'Reserved',     sub: 'No payment yet' },
-  { value: 'advance',  label: 'Advance paid',  sub: '30%' },
-  { value: 'paid',     label: 'Fully paid',    sub: '100%' },
+  { value: 'reserved', label: 'Резервирано',     sub: 'Без плащане' },
+  { value: 'advance',  label: 'Авансово платено',  sub: '30%' },
+  { value: 'paid',     label: 'Напълно платено',    sub: '100%' },
 ]
 
 export default function ReservationQuickView({
@@ -71,17 +71,17 @@ export default function ReservationQuickView({
         <div className="qv-stay">
           <div className="qv-stay-row">
             <div className="qv-stay-block">
-              <span className="qv-stay-lbl">Check-in</span>
+              <span className="qv-stay-lbl">Чек-ин</span>
               <span className="qv-stay-val">{fmt(reservation.checkIn)}</span>
             </div>
             <span className="qv-stay-arrow">→</span>
             <div className="qv-stay-block">
-              <span className="qv-stay-lbl">Check-out</span>
+              <span className="qv-stay-lbl">Чек-аут</span>
               <span className="qv-stay-val">{fmt(reservation.checkOut)}</span>
             </div>
           </div>
           <div className="qv-stay-meta">
-            <span>{n} night{n !== 1 ? 's' : ''}</span>
+            <span>{n} нощ{n !== 1 ? 'и' : ''}</span>
             {total > 0 && <span>€ {total} total</span>}
             {reservation.phone && <span>{reservation.phone}</span>}
           </div>
@@ -95,7 +95,7 @@ export default function ReservationQuickView({
           <div className="qv-better-room">
             <div className="qv-better-text">
               <span className="qv-better-icon">✦</span>
-              Better fit: <strong>Room {betterRoom.room.name}</strong>
+              По-добро съответствие: <strong>Стая {betterRoom.room.name}</strong>
               <span className="qv-better-badge" style={{
                 color:       fitLabel(betterRoom.score).color,
                 background:  fitLabel(betterRoom.score).color + '15',
@@ -105,13 +105,13 @@ export default function ReservationQuickView({
             </div>
             <button className="qv-better-btn"
               onClick={() => onMove(reservation.id, betterRoom.room.id)}>
-              Move →
+              Премести →
             </button>
           </div>
         )}
 
         {/* Payment status */}
-        <div className="qv-section-label">Payment Status</div>
+        <div className="qv-section-label">Статус на плащане</div>
         <div className="qv-status-grid">
           {STATUSES.map(st => {
             const active = status === st.value
@@ -139,14 +139,14 @@ export default function ReservationQuickView({
         {/* Actions */}
         <div className="qv-actions">
           <button className="btn btn-danger" onClick={() => {
-            if (window.confirm(`Delete reservation for ${reservation.guestName}?`)) {
+            if (window.confirm(`Изтрий резервацията за ${reservation.guestName}?`)) {
               onDelete(reservation.id)
             }
           }}>
-            Delete
+            Изтрий
           </button>
           <button className="btn btn-ghost" onClick={onEdit}>
-            Edit Details
+            Редактирай детайлите
           </button>
         </div>
 
