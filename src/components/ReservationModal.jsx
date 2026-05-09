@@ -187,7 +187,7 @@ export default function ReservationModal({
           {voiceData?._transcript && (
             <div className="voice-banner">
               🎤 &ldquo;{voiceData._transcript}&rdquo;
-              <span className="voice-banner-hint">Review the pre-filled details and confirm</span>
+              <span className="voice-banner-hint">Прегледайте попълнените детайли и потвърдете</span>
             </div>
           )}
 
