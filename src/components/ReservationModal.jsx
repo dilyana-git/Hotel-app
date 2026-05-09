@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
-import { scoreRooms, fitLabel } from '../utils/roomScoring'
+import { scoreRooms, fitLabel, findSwapSuggestions } from '../utils/roomScoring'
 import { calcTotalPrice, advanceOf } from '../utils/pricing'
 import './ReservationModal.css'
 
@@ -50,7 +50,7 @@ const PAYMENT_OPTIONS = [
 
 export default function ReservationModal({
   mode, reservation, initialRoomId, initialDate,
-  rooms, seasons, reservations, onSave, onDelete, onClose,
+  rooms, seasons, reservations, onSave, onDelete, onClose, onApplySwap,
 }) {
   const firstInputRef = useRef(null)
   const defaultCheckIn  = initialDate ?? ''
@@ -133,9 +133,19 @@ export default function ReservationModal({
     return scoreRooms(rooms, form.checkIn, form.checkOut, reservations, reservation?.id)
   }, [form.checkIn, form.checkOut, rooms, reservations, reservation?.id])
 
+  const swapSuggestions = useMemo(() => {
+    if (!form.checkIn || !form.checkOut || form.checkOut <= form.checkIn) return []
+    return findSwapSuggestions(rooms, form.checkIn, form.checkOut, reservations, reservation?.id)
+  }, [form.checkIn, form.checkOut, rooms, reservations, reservation?.id])
+
   const bestRoom    = scored[0] ?? null
   const isBestRoom  = bestRoom?.room.id === form.roomId
   const currentScore = scored.find(s => s.room.id === form.roomId)
+
+  function handleApplySwap(s) {
+    onApplySwap?.(s.conflictRes.id, s.toRoom.id)
+    set('roomId', s.fromRoom.id)
+  }
 
   function handleSubmit(e) {
     e.preventDefault()
@@ -256,6 +266,39 @@ export default function ReservationModal({
               </select>
             )}
           </div>
+
+          {/* ── Swap suggestions ── */}
+          {swapSuggestions.length > 0 && (
+            <div className="swap-section">
+              <div className="swap-section-label">Free up a room by moving an existing guest</div>
+              {swapSuggestions.map(s => {
+                const lbl = fitLabel(s.newScore)
+                return (
+                  <div key={s.conflictRes.id} className="swap-item">
+                    <div className="swap-info">
+                      <span className="swap-guest">{s.conflictRes.guestName}</span>
+                      <span className="swap-route">
+                        Room {s.fromRoom.name} → Room {s.toRoom.name}
+                      </span>
+                    </div>
+                    <div className="swap-item-right">
+                      <span className="fit-badge" style={{
+                        color: lbl.color,
+                        borderColor: lbl.color + '55',
+                        background:  lbl.color + '12',
+                      }}>
+                        {lbl.text}
+                      </span>
+                      <button type="button" className="btn btn-sm btn-ghost"
+                        onClick={() => handleApplySwap(s)}>
+                        Apply
+                      </button>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
 
           {/* ── Price & payment ── */}
           <div className="field-row">

@@ -105,6 +105,50 @@
   border-left: 3px solid var(--gray-200);
 }
 
+/* ── Better room suggestion ───────────────────────── */
+.qv-better-room {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 0 20px 14px;
+  padding: 9px 12px;
+  background: var(--gray-50);
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius);
+}
+.qv-better-text {
+  font-size: .8rem;
+  color: var(--gray-700);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+.qv-better-icon {
+  font-size: .75rem;
+  color: var(--gray-400);
+}
+.qv-better-badge {
+  font-size: .7rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 99px;
+}
+.qv-better-btn {
+  flex-shrink: 0;
+  padding: 5px 12px;
+  border: 1.5px solid var(--gray-300);
+  border-radius: var(--radius);
+  background: var(--white);
+  font-size: .8rem;
+  font-weight: 700;
+  color: var(--gray-700);
+  cursor: pointer;
+  transition: background .15s, border-color .15s;
+}
+.qv-better-btn:hover { background: var(--gray-100); border-color: var(--gray-400) }
+
 /* ── Payment section ──────────────────────────────── */
 .qv-section-label {
   padding: 14px 20px 8px;

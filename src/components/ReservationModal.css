@@ -185,6 +185,57 @@ form { padding: 16px 24px 0 }
 .status-advance  { background: hsl(250,52%,86%); color: hsl(250,58%,26%); border: 1px solid hsl(250,58%,55%) }
 .status-paid     { background: hsl(250,78%,78%); color: hsl(250,78%,20%); border: 1px solid hsl(250,78%,42%) }
 
+/* ── Swap suggestions ─────────────────────────────── */
+.swap-section {
+  margin-bottom: 14px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.swap-section-label {
+  padding: 7px 12px;
+  font-size: .66rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: var(--gray-400);
+  background: var(--gray-50);
+  border-bottom: 1px solid var(--gray-200);
+}
+.swap-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--gray-100);
+}
+.swap-item:last-child { border-bottom: none }
+.swap-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.swap-guest {
+  font-size: .85rem;
+  font-weight: 700;
+  color: var(--gray-900);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.swap-route {
+  font-size: .72rem;
+  color: var(--gray-400);
+}
+.swap-item-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
 /* ── Error message ────────────────────────────────── */
 .form-error {
   background: var(--red-lt);

@@ -58,6 +58,44 @@ export function scoreRooms(rooms, checkIn, checkOut, reservations, excludeId) {
   }).filter(Boolean).sort((a, b) => a.score - b.score)
 }
 
+/**
+ * Find rooms that can be freed by moving their current occupant elsewhere.
+ * Returns up to 3 options sorted by how good the freed room would be for
+ * the proposed stay (lowest score = best fit).
+ */
+export function findSwapSuggestions(rooms, checkIn, checkOut, allReservations, excludeId) {
+  const suggestions = []
+
+  for (const room of rooms) {
+    const conflicting = allReservations.find(r =>
+      r.id !== excludeId &&
+      r.roomId === room.id &&
+      r.checkIn < checkOut &&
+      r.checkOut > checkIn
+    )
+    if (!conflicting) continue
+
+    // Can the conflicting guest move to another room of the same type?
+    const sameType = rooms.filter(r => r.type === room.type && r.id !== room.id)
+    const altScored = scoreRooms(sameType, conflicting.checkIn, conflicting.checkOut, allReservations, conflicting.id)
+    if (altScored.length === 0) continue
+
+    // How good would this room be for the new stay if the conflict moves away?
+    const withoutConflict = allReservations.filter(r => r.id !== conflicting.id)
+    const freed = scoreRooms([room], checkIn, checkOut, withoutConflict, excludeId)
+    if (freed.length === 0) continue
+
+    suggestions.push({
+      conflictRes: conflicting,
+      fromRoom:    room,
+      toRoom:      altScored[0].room,
+      newScore:    freed[0].score,
+    })
+  }
+
+  return suggestions.sort((a, b) => a.newScore - b.newScore).slice(0, 3)
+}
+
 export function fitLabel(score) {
   if (score <= -8)  return { text: 'Perfect fit',  color: '#16A34A' }
   if (score <= 0)   return { text: 'Great fit',    color: '#2563EB' }

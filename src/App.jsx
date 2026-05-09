@@ -75,9 +75,18 @@ export default function App() {
     setReservations(prev => prev.map(r =>
       r.id === id ? { ...r, paymentStatus: status } : r
     ))
-    // Keep quick view open with updated reservation
     setModal(prev => prev?.mode === 'quick'
       ? { ...prev, reservation: { ...prev.reservation, paymentStatus: status } }
+      : prev
+    )
+  }
+
+  function moveReservation(id, newRoomId) {
+    setReservations(prev => prev.map(r =>
+      r.id === id ? { ...r, roomId: newRoomId } : r
+    ))
+    setModal(prev => prev?.mode === 'quick' && prev.reservation?.id === id
+      ? { ...prev, reservation: { ...prev.reservation, roomId: newRoomId } }
       : prev
     )
   }
@@ -159,10 +168,13 @@ export default function App() {
         <ReservationQuickView
           reservation={modal.reservation}
           room={rooms.find(r => r.id === modal.reservation.roomId)}
+          rooms={rooms}
+          reservations={reservations}
           onStatusChange={status => updatePaymentStatus(modal.reservation.id, status)}
           onEdit={() => openEdit(modal.reservation)}
           onDelete={deleteReservation}
           onClose={() => setModal(null)}
+          onMove={moveReservation}
         />
       )}
 
@@ -178,6 +190,7 @@ export default function App() {
           onSave={saveReservation}
           onDelete={deleteReservation}
           onClose={() => setModal(null)}
+          onApplySwap={moveReservation}
         />
       )}
     </div>

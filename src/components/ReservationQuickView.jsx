@@ -1,5 +1,6 @@
 import { reservationColor } from '../utils/colors'
 import { advanceOf } from '../utils/pricing'
+import { scoreRooms, fitLabel } from '../utils/roomScoring'
 import './ReservationQuickView.css'
 
 function fmt(dateStr) {
@@ -24,13 +25,28 @@ const STATUSES = [
 ]
 
 export default function ReservationQuickView({
-  reservation, room, onStatusChange, onEdit, onDelete, onClose,
+  reservation, room, rooms, reservations,
+  onStatusChange, onEdit, onDelete, onClose, onMove,
 }) {
   const status   = resolveStatus(reservation)
   const roomType = room?.type ?? 'Room'
   const total    = Number(reservation.price) || 0
   const adv      = total ? advanceOf(total) : 0
   const n        = nights(reservation.checkIn, reservation.checkOut)
+
+  // Find a better-fit room of the same type (if one exists)
+  const betterRoom = (() => {
+    if (!rooms || !reservations || !room) return null
+    const sameType = rooms.filter(r => r.type === room.type)
+    if (sameType.length < 2) return null
+    const allScored = scoreRooms(
+      sameType, reservation.checkIn, reservation.checkOut, reservations, reservation.id
+    )
+    const current = allScored.find(s => s.room.id === reservation.roomId)
+    const best    = allScored[0]
+    if (!current || !best || best.room.id === reservation.roomId) return null
+    return (current.score - best.score >= 8) ? best : null
+  })()
 
   function subLabel(st) {
     if (st === 'advance' && total) return `€ ${adv}`
@@ -73,6 +89,26 @@ export default function ReservationQuickView({
             <div className="qv-notes">"{reservation.notes}"</div>
           )}
         </div>
+
+        {/* Better room suggestion */}
+        {betterRoom && onMove && (
+          <div className="qv-better-room">
+            <div className="qv-better-text">
+              <span className="qv-better-icon">✦</span>
+              Better fit: <strong>Room {betterRoom.room.name}</strong>
+              <span className="qv-better-badge" style={{
+                color:       fitLabel(betterRoom.score).color,
+                background:  fitLabel(betterRoom.score).color + '15',
+              }}>
+                {fitLabel(betterRoom.score).text}
+              </span>
+            </div>
+            <button className="qv-better-btn"
+              onClick={() => onMove(reservation.id, betterRoom.room.id)}>
+              Move →
+            </button>
+          </div>
+        )}
 
         {/* Payment status */}
         <div className="qv-section-label">Payment Status</div>
