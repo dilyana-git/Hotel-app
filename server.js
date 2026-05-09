@@ -1,6 +1,8 @@
-import express from 'express'
-import fs      from 'fs'
-import path    from 'path'
+import express  from 'express'
+import fs        from 'fs'
+import os        from 'os'
+import path      from 'path'
+import qrcode    from 'qrcode-terminal'
 import { fileURLToPath } from 'url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -17,6 +19,16 @@ function writeStore(data) {
   const tmp = DATA + '.tmp'
   fs.writeFileSync(tmp, JSON.stringify(data, null, 2), 'utf8')
   fs.renameSync(tmp, DATA)
+}
+
+// ── Local network IP ──────────────────────────────────
+function getLanIP() {
+  for (const ifaces of Object.values(os.networkInterfaces())) {
+    for (const iface of ifaces) {
+      if (iface.family === 'IPv4' && !iface.internal) return iface.address
+    }
+  }
+  return null
 }
 
 // ── Middleware ────────────────────────────────────────
@@ -38,6 +50,20 @@ app.put('/api/data/:key', (req, res) => {
 })
 
 // ── Start ─────────────────────────────────────────────
-app.listen(PORT, () => {
-  console.log(`\n  Hotel Manager is running.\n  Open http://localhost:${PORT} in your browser.\n`)
+app.listen(PORT, '0.0.0.0', () => {
+  const lan    = getLanIP()
+  const lanUrl = lan ? `http://${lan}:${PORT}` : null
+
+  console.log('\n  Hotel Manager is running\n')
+  console.log(`  This computer:  http://localhost:${PORT}`)
+  if (lanUrl) {
+    console.log(`  Phone / tablet: ${lanUrl}`)
+    console.log('\n  Scan to open on your phone:\n')
+    qrcode.generate(lanUrl, { small: true })
+    if (process.platform === 'win32') {
+      console.log('  Windows tip: if the phone cannot connect, allow')
+      console.log('  Node.js through Windows Defender Firewall.\n')
+    }
+  }
+  console.log()
 })
