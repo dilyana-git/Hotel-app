@@ -4,16 +4,13 @@ import ReservationModal from './components/ReservationModal'
 import ReservationQuickView from './components/ReservationQuickView'
 import RoomsManager from './components/RoomsManager'
 import ConfigPage from './components/ConfigPage'
+import { loadAll, save } from './utils/api'
 
 const MONTHS = [
   'Януари','Февруари','Март','Април','Май','Юни',
   'Юли','Август','Септември','Октомври','Ноември','Декември'
 ]
 
-function load(key, fallback) {
-  try { return JSON.parse(localStorage.getItem(key)) ?? fallback }
-  catch { return fallback }
-}
 
 const DEFAULT_ROOMS = [
   { id: 'r11', name: '11', type: 'Room',      price: 100 },
@@ -44,15 +41,27 @@ export default function App() {
   const today = new Date()
   const [year, setYear]   = useState(today.getFullYear())
   const [month, setMonth] = useState(today.getMonth() + 1)
-  const [rooms, setRooms] = useState(() => load('hm-rooms-v4', DEFAULT_ROOMS))
-  const [reservations, setReservations] = useState(() => load('hm-reservations', []))
-  const [seasons, setSeasons] = useState(() => load('hm-seasons', DEFAULT_SEASONS))
+  const [rooms, setRooms] = useState(DEFAULT_ROOMS)
+  const [reservations, setReservations] = useState([])
+  const [seasons, setSeasons] = useState(DEFAULT_SEASONS)
   const [modal, setModal] = useState(null)
   const [view, setView]   = useState('grid')
+  const [ready, setReady] = useState(false)
 
-  useEffect(() => { localStorage.setItem('hm-rooms-v4',     JSON.stringify(rooms))        }, [rooms])
-  useEffect(() => { localStorage.setItem('hm-reservations', JSON.stringify(reservations)) }, [reservations])
-  useEffect(() => { localStorage.setItem('hm-seasons',      JSON.stringify(seasons))      }, [seasons])
+  // Load from server (if running) or localStorage on startup
+  useEffect(() => {
+    loadAll(DEFAULT_ROOMS, DEFAULT_SEASONS).then(data => {
+      setRooms(data.rooms)
+      setReservations(data.reservations)
+      setSeasons(data.seasons)
+      setReady(true)
+    })
+  }, [])
+
+  // Persist every change to localStorage + server in the background
+  useEffect(() => { if (ready) save('rooms',        rooms)        }, [rooms,        ready])
+  useEffect(() => { if (ready) save('reservations', reservations) }, [reservations, ready])
+  useEffect(() => { if (ready) save('seasons',      seasons)      }, [seasons,      ready])
 
   function prevMonth() {
     if (month === 1) { setMonth(12); setYear(y => y - 1) }
@@ -106,6 +115,8 @@ export default function App() {
   }
 
   const isCurrentMonth = year === today.getFullYear() && month === today.getMonth() + 1
+
+  if (!ready) return <div className="app-loading">Loading…</div>
 
   return (
     <div className="app">

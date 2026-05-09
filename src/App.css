@@ -169,6 +169,17 @@ body {
 
 .btn-sm { padding: 5px 12px; font-size: .8rem }
 
+/* ── Loading state ────────────────────────────────── */
+.app-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100dvh;
+  font-size: .95rem;
+  color: var(--gray-400);
+  font-weight: 500;
+}
+
 /* ── Empty state ──────────────────────────────────── */
 .empty-state {
   padding: 60px 24px;
