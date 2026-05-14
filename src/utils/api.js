@@ -22,7 +22,8 @@ async function serverUp() {
     const tid = setTimeout(() => ac.abort(), 1000)
     const res = await fetch('/api/ping', { signal: ac.signal })
     clearTimeout(tid)
-    _serverUp = res.ok
+    const contentType = res.headers.get('content-type')
+    _serverUp = res.ok && contentType?.includes('application/json')
   } catch {
     _serverUp = false
   }
@@ -40,38 +41,51 @@ function apiPut(key, value) {
 async function apiGet(key) {
   try {
     const r = await fetch(`/api/data/${key}`)
-    return r.ok ? r.json() : null
-  } catch { return null }
+    if (!r.ok) return null
+    const contentType = r.headers.get('content-type')
+    if (!contentType?.includes('application/json')) return null
+    return await r.json()
+  } catch {
+    return null
+  }
 }
 
 // ── Public API ────────────────────────────────────────
 
 export async function loadAll(defaultRooms, defaultSeasons) {
-  if (!await serverUp()) {
-    // File mode (single HTML) or server not running — use localStorage
+  try {
+    if (!await serverUp()) {
+      // File mode (single HTML) or server not running — use localStorage
+      return {
+        rooms:        lsRead('rooms',        defaultRooms),
+        reservations: lsRead('reservations', []),
+        seasons:      lsRead('seasons',      defaultSeasons),
+      }
+    }
+
+    const [rooms, reservations, seasons] = await Promise.all([
+      apiGet('rooms'), apiGet('reservations'), apiGet('seasons'),
+    ])
+
+    const result = {
+      rooms:        rooms        ?? lsRead('rooms',        defaultRooms),
+      reservations: reservations ?? lsRead('reservations', []),
+      seasons:      seasons      ?? lsRead('seasons',      defaultSeasons),
+    }
+
+    // First launch with server: migrate any existing localStorage data
+    if (rooms        === null) apiPut('rooms',        result.rooms)
+    if (reservations === null) apiPut('reservations', result.reservations)
+    if (seasons      === null) apiPut('seasons',      result.seasons)
+
+    return result
+  } catch {
     return {
       rooms:        lsRead('rooms',        defaultRooms),
       reservations: lsRead('reservations', []),
       seasons:      lsRead('seasons',      defaultSeasons),
     }
   }
-
-  const [rooms, reservations, seasons] = await Promise.all([
-    apiGet('rooms'), apiGet('reservations'), apiGet('seasons'),
-  ])
-
-  const result = {
-    rooms:        rooms        ?? lsRead('rooms',        defaultRooms),
-    reservations: reservations ?? lsRead('reservations', []),
-    seasons:      seasons      ?? lsRead('seasons',      defaultSeasons),
-  }
-
-  // First launch with server: migrate any existing localStorage data
-  if (rooms        === null) apiPut('rooms',        result.rooms)
-  if (reservations === null) apiPut('reservations', result.reservations)
-  if (seasons      === null) apiPut('seasons',      result.seasons)
-
-  return result
 }
 
 // Write to localStorage immediately + replicate to server in the background

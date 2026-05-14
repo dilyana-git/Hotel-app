@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import './RoomsManager.css'
 
-const ROOM_TYPES = ['Standard', 'Deluxe', 'Suite', 'Family', 'Single', 'Double', 'Twin', 'Apartment', 'Room']
+const ROOM_TYPES = ['Стандартна', 'Студио', 'Малък апартамент', 'Голям апартамент']
 
 export default function RoomsManager({ rooms, onSave }) {
   const [list, setList]         = useState(rooms)
@@ -113,7 +113,7 @@ export default function RoomsManager({ rooms, onSave }) {
               <div className="room-display" onClick={() => setEditing(room.id)}>
                 <span className="room-display-name">{room.name}</span>
                 <span className="room-display-type">{room.type}</span>
-                <span className="room-display-price">${room.price}</span>
+                <span className="room-display-price">€{room.price}</span>
               </div>
             )}
 

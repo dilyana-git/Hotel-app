@@ -1,4 +1,8 @@
 @echo off
+if not exist "node_modules" (
+  echo Installing dependencies, please wait...
+  call npm install
+)
 if not exist "dist\index.html" (
   echo Building Hotel Manager for the first time, please wait...
   call npm run build

@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { reservationColor, legendItems } from '../utils/colors'
 import './BookingGrid.css'
 
-const DAY_ABBR = ['Нед','Пон','Вто','Сря','Чет','Пет','Саб']
+const DAY_ABBR = ['Нед','Пон','Вто','Сря','Чет','Пет','Съб']
 
 function daysInMonth(year, month) { return new Date(year, month, 0).getDate() }
 function toDateStr(y, m, d) {
@@ -54,7 +54,7 @@ function buildGrid(year, month, rooms, reservations) {
 
 function Legend({ rooms }) {
   const legend = legendItems()
-  const hasApt = rooms.some(r => r.type === 'Apartment')
+  const hasApt = rooms.some(r => r.type === 'Апартамент')
   const labels = { reserved: 'Резервирано', advance: 'Авансово', paid: 'Платено' }
 
   return (
@@ -245,7 +245,7 @@ export default function BookingGrid({ year, month, rooms, reservations, onCellCl
                             <div className="res-name">{res.guestName}</div>
                             {res.phone && <div className="res-phone">{res.phone}</div>}
                             <div className="res-meta">
-                              <span className="res-nights">{nights}n</span>
+                              <span className="res-nights">{nights}н</span>
                               {status === 'paid'    && <span className="status-dot dot-paid">плач.</span>}
                               {status === 'advance' && <span className="status-dot dot-advance">авн.</span>}
                               {status === 'reserved'&& <span className="status-dot dot-reserved">рез.</span>}

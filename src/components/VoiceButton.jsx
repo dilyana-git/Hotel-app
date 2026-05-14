@@ -22,7 +22,7 @@ export default function VoiceButton({ onResult }) {
     if (state === 'processing') return
 
     if (!SpeechRecognition) {
-      setErrorMsg('Speech recognition not supported in this browser')
+      setErrorMsg('Гласовото разпознаване не се поддържа в този браузър')
       setState('error')
       return
     }
@@ -50,7 +50,7 @@ export default function VoiceButton({ onResult }) {
         })
         if (!resp.ok) {
           const err = await resp.json().catch(() => ({}))
-          throw new Error(err.error || `Server error ${resp.status}`)
+          throw new Error(err.error || `Грешка от сървъра: ${resp.status}`)
         }
         const data = await resp.json()
         setState('idle')
@@ -63,7 +63,7 @@ export default function VoiceButton({ onResult }) {
 
     recog.onerror = (e) => {
       if (e.error === 'aborted') { setState('idle'); return }
-      setErrorMsg(e.error === 'not-allowed' ? 'Microphone permission denied' : `Speech error: ${e.error}`)
+      setErrorMsg(e.error === 'not-allowed' ? 'Достъпът до микрофона е отказан' : `Грешка при разпознаване: ${e.error}`)
       setState('error')
     }
 
@@ -100,8 +100,8 @@ export default function VoiceButton({ onResult }) {
       <button
         className={`voice-fab state-${state}`}
         onClick={handleClick}
-        title={state === 'listening' ? 'Tap to stop' : 'Voice reservation'}
-        aria-label={state === 'listening' ? 'Stop listening' : 'Start voice reservation'}
+        title={state === 'listening' ? 'Натисни за спиране' : 'Гласова резервация'}
+        aria-label={state === 'listening' ? 'Спри слушането' : 'Започни гласова резервация'}
       >
         {state === 'processing' ? (
           <span className="voice-fab-spinner" />
@@ -112,7 +112,7 @@ export default function VoiceButton({ onResult }) {
         )}
       </button>
       {state === 'listening' && (
-        <span className="voice-fab-label">Listening… tap to stop</span>
+        <span className="voice-fab-label">Слушам… натисни за спиране</span>
       )}
     </div>
   )

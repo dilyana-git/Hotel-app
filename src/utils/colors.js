@@ -10,7 +10,7 @@ const SATS = {
 }
 
 export function reservationColor(roomType, paymentStatus) {
-  const h = roomType === 'Apartment' ? APT_HUE : ROOM_HUE
+  const h = roomType === 'Апартамент' ? APT_HUE : ROOM_HUE
   const s = SATS[paymentStatus] ?? SATS.reserved
   return {
     bg:     `hsl(${h},${s.bgS}%,${s.bgL}%)`,
@@ -22,12 +22,12 @@ export function reservationColor(roomType, paymentStatus) {
 // Legend entries for the grid header
 export function legendItems() {
   const statuses = [
-    { key: 'reserved', label: 'Reserved' },
-    { key: 'advance',  label: 'Advance' },
-    { key: 'paid',     label: 'Paid' },
+    { key: 'reserved', label: 'Резервирано' },
+    { key: 'advance',  label: 'Капаро' },
+    { key: 'paid',     label: 'Платено' },
   ]
   return {
     room: statuses.map(st => ({ ...st, ...reservationColor('Room', st.key) })),
-    apt:  statuses.map(st => ({ ...st, ...reservationColor('Apartment', st.key) })),
+    apt:  statuses.map(st => ({ ...st, ...reservationColor('Апартамент', st.key) })),
   }
 }

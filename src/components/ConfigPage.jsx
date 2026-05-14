@@ -31,7 +31,7 @@ export default function ConfigPage({ seasons: initialSeasons, rooms, onSave }) {
   const roomTypes = useMemo(() => {
     const types = [...new Set(rooms.map(r => r.type).filter(Boolean))]
     return types.sort((a, b) =>
-      a === 'Apartment' ? 1 : b === 'Apartment' ? -1 :
+      a === 'Апартамент' ? 1 : b === 'Апартамент' ? -1 :
       a.localeCompare(b)
     )
   }, [rooms])
@@ -142,7 +142,7 @@ export default function ConfigPage({ seasons: initialSeasons, rooms, onSave }) {
                     {roomTypes.map(type => {
                       const price = season.prices?.[type] ?? 0
                       const adv   = Math.round(price * 0.30)
-                      const isApt = type === 'Apartment'
+                      const isApt = type === 'Апартамент'
                       return (
                         <tr key={type}>
                           <td>

@@ -14,28 +14,28 @@ const MONTHS = [
 
 
 const DEFAULT_ROOMS = [
-  { id: 'r11', name: '11', type: 'Room',      price: 100 },
-  { id: 'r12', name: '12', type: 'Room',      price: 100 },
-  { id: 'r13', name: '13', type: 'Room',      price: 100 },
-  { id: 'r14', name: '14', type: 'Room',      price: 100 },
-  { id: 'r21', name: '21', type: 'Apartment', price: 150 },
-  { id: 'r22', name: '22', type: 'Room',      price: 100 },
-  { id: 'r23', name: '23', type: 'Room',      price: 100 },
-  { id: 'r24', name: '24', type: 'Room',      price: 100 },
-  { id: 'r25', name: '25', type: 'Room',      price: 100 },
-  { id: 'r26', name: '26', type: 'Apartment', price: 150 },
-  { id: 'r31', name: '31', type: 'Apartment', price: 150 },
-  { id: 'r32', name: '32', type: 'Room',      price: 100 },
-  { id: 'r33', name: '33', type: 'Room',      price: 100 },
-  { id: 'r34', name: '34', type: 'Room',      price: 100 },
-  { id: 'r35', name: '35', type: 'Room',      price: 100 },
-  { id: 'r36', name: '36', type: 'Apartment', price: 150 },
+  { id: 'r11', name: '11', type: 'Стая',        price: 100 },
+  { id: 'r12', name: '12', type: 'Стая',        price: 100 },
+  { id: 'r13', name: '13', type: 'Стая',        price: 100 },
+  { id: 'r14', name: '14', type: 'Стая',        price: 100 },
+  { id: 'r21', name: '21', type: 'Апартамент',  price: 150 },
+  { id: 'r22', name: '22', type: 'Стая',        price: 100 },
+  { id: 'r23', name: '23', type: 'Стая',        price: 100 },
+  { id: 'r24', name: '24', type: 'Стая',        price: 100 },
+  { id: 'r25', name: '25', type: 'Стая',        price: 100 },
+  { id: 'r26', name: '26', type: 'Апартамент',  price: 150 },
+  { id: 'r31', name: '31', type: 'Апартамент',  price: 150 },
+  { id: 'r32', name: '32', type: 'Стая',        price: 100 },
+  { id: 'r33', name: '33', type: 'Стая',        price: 100 },
+  { id: 'r34', name: '34', type: 'Стая',        price: 100 },
+  { id: 'r35', name: '35', type: 'Стая',        price: 100 },
+  { id: 'r36', name: '36', type: 'Апартамент',  price: 150 },
 ]
 
 const DEFAULT_SEASONS = [
-  { id:'s1', name:'Нисък сезон',  from:'01-01', to:'05-31', prices:{ Room: 80,  Apartment: 120 } },
-  { id:'s2', name:'Висок сезон', from:'06-01', to:'08-31', prices:{ Room: 140, Apartment: 210 } },
-  { id:'s3', name:'Преходен',    from:'09-01', to:'12-31', prices:{ Room: 100, Apartment: 150 } },
+  { id:'s1', name:'Нисък сезон',  from:'01-01', to:'05-31', prices:{ Стая: 80,  Апартамент: 120 } },
+  { id:'s2', name:'Висок сезон', from:'06-01', to:'08-31', prices:{ Стая: 140, Апартамент: 210 } },
+  { id:'s3', name:'Преходен',    from:'09-01', to:'12-31', prices:{ Стая: 100, Апартамент: 150 } },
 ]
 
 export default function App() {
@@ -127,7 +127,7 @@ export default function App() {
 
   const isCurrentMonth = year === today.getFullYear() && month === today.getMonth() + 1
 
-  if (!ready) return <div className="app-loading">Loading…</div>
+  if (!ready) return <div className="app-loading">Зареждане…</div>
 
   return (
     <div className="app">
