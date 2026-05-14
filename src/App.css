@@ -169,6 +169,13 @@ body {
 
 .btn-sm { padding: 5px 12px; font-size: .8rem }
 
+/* ── Mobile header ────────────────────────────────── */
+@media (max-width: 480px) {
+  .brand-name { display: none }
+  .app-header { padding: 0 10px }
+  .nav-tab { padding: 6px 10px; font-size: .8rem; gap: 4px }
+}
+
 /* ── Loading state ────────────────────────────────── */
 .app-loading {
   display: flex;

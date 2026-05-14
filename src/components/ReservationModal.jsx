@@ -49,23 +49,23 @@ const PAYMENT_OPTIONS = [
 ]
 
 export default function ReservationModal({
-  mode, reservation, initialRoomId, initialCheckIn, initialCheckOut, voiceData,
+  mode, reservation, initialRoomId, initialCheckIn, initialCheckOut,
   rooms, seasons, reservations, onSave, onDelete, onClose, onApplySwap,
 }) {
   const firstInputRef = useRef(null)
-  const defaultCheckIn  = voiceData?.checkIn  ?? initialCheckIn  ?? ''
-  const defaultCheckOut = voiceData?.checkOut ?? initialCheckOut ?? (defaultCheckIn ? addDays(defaultCheckIn, 1) : '')
-  const defaultRoomId   = voiceData?.roomId   ?? initialRoomId   ?? rooms[0]?.id ?? ''
+  const defaultCheckIn  = initialCheckIn  ?? ''
+  const defaultCheckOut = initialCheckOut ?? (defaultCheckIn ? addDays(defaultCheckIn, 1) : '')
+  const defaultRoomId   = initialRoomId   ?? rooms[0]?.id ?? ''
 
   const [form, setForm] = useState({
-    guestName:     voiceData?.guestName ?? '',
-    phone:         voiceData?.phone     ?? '',
+    guestName:     '',
+    phone:         '',
     roomId:        defaultRoomId,
     checkIn:       defaultCheckIn,
     checkOut:      defaultCheckOut,
     price:         '',
     paymentStatus: 'reserved',
-    notes:         voiceData?.notes ?? '',
+    notes:         '',
   })
   const [priceOverridden, setPriceOverridden] = useState(false)
   const [error, setError]   = useState('')
@@ -184,14 +184,7 @@ export default function ReservationModal({
         </div>
 
         <form onSubmit={handleSubmit} noValidate>
-          {voiceData?._transcript && (
-            <div className="voice-banner">
-              🎤 &ldquo;{voiceData._transcript}&rdquo;
-              <span className="voice-banner-hint">Прегледайте попълнените детайли и потвърдете</span>
-            </div>
-          )}
-
-          <div className="field">
+<div className="field">
             <label>Име на гост <span className="req">*</span></label>
             <input ref={firstInputRef} type="text" value={form.guestName}
               onChange={e => set('guestName', e.target.value)} placeholder="Пълно име" />
@@ -230,7 +223,21 @@ export default function ReservationModal({
 
             {scored.length > 0 ? (
               <>
-                <div className="room-picker">
+                {/* Mobile: compact dropdown sorted by best fit */}
+                <select
+                  className="room-select-mobile"
+                  value={form.roomId}
+                  onChange={e => set('roomId', e.target.value)}
+                >
+                  {scored.map(({ room }, i) => (
+                    <option key={room.id} value={room.id}>
+                      {i === 0 ? '★ ' : ''}{room.name}{room.type ? ` — ${room.type}` : ''}
+                    </option>
+                  ))}
+                </select>
+
+                {/* Desktop: smart card picker */}
+                <div className="room-picker room-picker-desktop">
                   {visibleScored.map(({ room, score, gaps }, i) => {
                     const lbl      = fitLabel(score)
                     const selected = form.roomId === room.id
@@ -255,7 +262,7 @@ export default function ReservationModal({
                   })}
                 </div>
                 {scored.length > 5 && (
-                  <button type="button" className="show-more-btn"
+                  <button type="button" className="show-more-btn room-picker-desktop"
                     onClick={() => setShowAll(v => !v)}>
                     {showAll ? 'Покажи по-малко стаи' : `Покажи всички ${scored.length} налични стаи`}
                   </button>

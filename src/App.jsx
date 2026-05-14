@@ -4,7 +4,6 @@ import ReservationModal from './components/ReservationModal'
 import ReservationQuickView from './components/ReservationQuickView'
 import RoomsManager from './components/RoomsManager'
 import ConfigPage from './components/ConfigPage'
-import VoiceButton from './components/VoiceButton'
 import { loadAll, save } from './utils/api'
 
 const MONTHS = [
@@ -77,17 +76,7 @@ export default function App() {
     setMonth(today.getMonth() + 1)
   }
 
-  function handleVoiceResult(data) {
-    setModal({
-      mode: 'add',
-      roomId:   data.roomId   ?? null,
-      checkIn:  data.checkIn  ?? null,
-      checkOut: data.checkOut ?? null,
-      voiceData: data,
-    })
-  }
-
-  function openAdd(roomId, checkIn, checkOut) { setModal({ mode: 'add', roomId, checkIn, checkOut }) }
+function openAdd(roomId, checkIn, checkOut) { setModal({ mode: 'add', roomId, checkIn, checkOut }) }
   function openQuick(reservation) { setModal({ mode: 'quick', reservation }) }
   function openEdit(reservation)  { setModal({ mode: 'edit',  reservation }) }
 
@@ -175,8 +164,7 @@ export default function App() {
             onCellClick={openAdd}
             onReservationClick={openQuick}
           />
-          <VoiceButton onResult={handleVoiceResult} />
-        </>
+</>
       )}
 
       {view === 'rooms' && (
@@ -193,7 +181,7 @@ export default function App() {
           room={rooms.find(r => r.id === modal.reservation.roomId)}
           rooms={rooms}
           reservations={reservations}
-          onStatusChange={status => updatePaymentStatus(modal.reservation.id, status)}
+          onStatusChange={status => { updatePaymentStatus(modal.reservation.id, status); setModal(null) }}
           onEdit={() => openEdit(modal.reservation)}
           onDelete={deleteReservation}
           onClose={() => setModal(null)}
@@ -208,8 +196,7 @@ export default function App() {
           initialRoomId={modal.roomId ?? modal.reservation?.roomId}
           initialCheckIn={modal.checkIn ?? modal.reservation?.checkIn}
           initialCheckOut={modal.checkOut}
-          voiceData={modal.voiceData ?? null}
-          rooms={rooms}
+rooms={rooms}
           seasons={seasons}
           reservations={reservations}
           onSave={saveReservation}
