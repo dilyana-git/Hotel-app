@@ -1,10 +1,11 @@
 import 'dotenv/config'
-import express   from 'express'
-import fs        from 'fs'
-import os        from 'os'
-import path      from 'path'
-import qrcode    from 'qrcode-terminal'
-import Anthropic from '@anthropic-ai/sdk'
+import express          from 'express'
+import fs               from 'fs'
+import os               from 'os'
+import path             from 'path'
+import qrcode           from 'qrcode-terminal'
+import Anthropic        from '@anthropic-ai/sdk'
+import { createClient } from '@supabase/supabase-js'
 import { fileURLToPath } from 'url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -12,14 +13,30 @@ const app       = express()
 const PORT      = process.env.PORT || 3001
 const DATA      = path.join(__dirname, 'hotel-data.json')
 
-// ── JSON file store (atomic write via tmp → rename) ──
-function readStore() {
-  try { return JSON.parse(fs.readFileSync(DATA, 'utf8')) }
-  catch { return {} }
+// ── Storage: Supabase (cloud) or local JSON file ──────
+const supabase = (process.env.SUPABASE_URL && process.env.SUPABASE_ANON_KEY)
+  ? createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY)
+  : null
+
+async function dbGet(key) {
+  if (supabase) {
+    const { data } = await supabase.from('store').select('value').eq('key', key).maybeSingle()
+    return data?.value ?? null
+  }
+  try { return JSON.parse(fs.readFileSync(DATA, 'utf8'))[key] ?? null }
+  catch { return null }
 }
-function writeStore(data) {
+
+async function dbSet(key, value) {
+  if (supabase) {
+    await supabase.from('store').upsert({ key, value })
+    return
+  }
   const tmp = DATA + '.tmp'
-  fs.writeFileSync(tmp, JSON.stringify(data, null, 2), 'utf8')
+  let store = {}
+  try { store = JSON.parse(fs.readFileSync(DATA, 'utf8')) } catch {}
+  store[key] = value
+  fs.writeFileSync(tmp, JSON.stringify(store, null, 2), 'utf8')
   fs.renameSync(tmp, DATA)
 }
 
@@ -40,14 +57,12 @@ app.use(express.static(path.join(__dirname, 'dist')))
 // ── API ───────────────────────────────────────────────
 app.get('/api/ping', (_, res) => res.json({ ok: true }))
 
-app.get('/api/data/:key', (req, res) => {
-  res.json(readStore()[req.params.key] ?? null)
+app.get('/api/data/:key', async (req, res) => {
+  res.json(await dbGet(req.params.key))
 })
 
-app.put('/api/data/:key', (req, res) => {
-  const store = readStore()
-  store[req.params.key] = req.body
-  writeStore(store)
+app.put('/api/data/:key', async (req, res) => {
+  await dbSet(req.params.key, req.body)
   res.json({ ok: true })
 })
 
@@ -59,10 +74,9 @@ app.post('/api/parse-reservation', async (req, res) => {
   const { text } = req.body
   if (!text?.trim()) return res.status(400).json({ error: 'No text provided' })
 
-  const store  = readStore()
-  const rooms  = store.rooms ?? []
-  const today  = new Date().toISOString().slice(0, 10)
-  const tmrw   = new Date(Date.now() + 86400000).toISOString().slice(0, 10)
+  const rooms = await dbGet('rooms') ?? []
+  const today = new Date().toISOString().slice(0, 10)
+  const tmrw  = new Date(Date.now() + 86400000).toISOString().slice(0, 10)
 
   const client = new Anthropic()
   const msg    = await client.messages.create({
@@ -106,6 +120,7 @@ app.listen(PORT, '0.0.0.0', () => {
   const lanUrl = lan ? `http://${lan}:${PORT}` : null
 
   console.log('\n  Hotel Manager is running\n')
+  console.log(`  Storage: ${supabase ? 'Supabase (cloud)' : 'local file'}`)
   console.log(`  This computer:  http://localhost:${PORT}`)
   if (lanUrl) {
     console.log(`  Phone / tablet: ${lanUrl}`)
