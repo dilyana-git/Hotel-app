@@ -88,11 +88,19 @@ export default function BookingGrid({ year, month, rooms, reservations, onCellCl
   const todayStr = toDateStr(today.getFullYear(), today.getMonth()+1, today.getDate())
   const { grid, total } = buildGrid(year, month, rooms, reservations)
 
+  // ── Mobile detection ──────────────────────────────
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 640)
+  useEffect(() => {
+    const h = () => setIsMobile(window.innerWidth <= 640)
+    window.addEventListener('resize', h, { passive: true })
+    return () => window.removeEventListener('resize', h)
+  }, [])
+
   // ── Drag-to-select ────────────────────────────────
-  const [drag, setDrag]        = useState(null)
-  const dragRef                = useRef(null)
-  const gridWrapperRef         = useRef(null)
-  const touchMoveHandlerRef    = useRef(null)
+  const [drag, setDrag]     = useState(null)
+  const dragRef             = useRef(null)
+  const gridWrapperRef      = useRef(null)
+  const touchMoveHandlerRef = useRef(null)
 
   const selMin  = drag ? Math.min(drag.startDay, drag.endDay) : null
   const selMax  = drag ? Math.max(drag.startDay, drag.endDay) : null
@@ -106,7 +114,6 @@ export default function BookingGrid({ year, month, rooms, reservations, onCellCl
   function extendDrag(roomId, day) {
     const d = dragRef.current
     if (!d || d.roomId !== roomId) return
-    // Walk toward `day`, stopping before any occupied cell
     const step = day >= d.startDay ? 1 : -1
     let endDay = d.startDay
     let cursor = d.startDay + step
@@ -126,7 +133,6 @@ export default function BookingGrid({ year, month, rooms, reservations, onCellCl
     onCellClick(d.roomId, toDateStr(year, month, min), toDateStr(year, month, max + 1))
   }
 
-  // Stable document-level mouseup — fires even if cursor leaves the grid
   useEffect(() => {
     function onMouseUp() {
       const d = dragRef.current
@@ -139,7 +145,6 @@ export default function BookingGrid({ year, month, rooms, reservations, onCellCl
     return () => document.removeEventListener('mouseup', onMouseUp)
   }, [year, month, onCellClick]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Keep the touch-move closure fresh (captures current `grid`)
   touchMoveHandlerRef.current = function(e) {
     if (!dragRef.current) return
     e.preventDefault()
@@ -150,7 +155,6 @@ export default function BookingGrid({ year, month, rooms, reservations, onCellCl
     if (day && rid) extendDrag(rid, day)
   }
 
-  // Non-passive touchmove so preventDefault() actually prevents scroll
   useEffect(() => {
     const wrapper = gridWrapperRef.current
     if (!wrapper) return
@@ -167,6 +171,21 @@ export default function BookingGrid({ year, month, rooms, reservations, onCellCl
     commitDrag(d)
   }
 
+  // ── Auto-scroll transposed view to today ──────────
+  useEffect(() => {
+    if (!isMobile || !gridWrapperRef.current) return
+    const isCurrentMonth =
+      today.getFullYear() === year && today.getMonth() + 1 === month
+    if (isCurrentMonth) {
+      const ROOM_COL_W = 52
+      const DAY_COL_W  = 44
+      const scrollTo   = (today.getDate() - 2) * DAY_COL_W
+      gridWrapperRef.current.scrollLeft = Math.max(0, scrollTo - ROOM_COL_W)
+    } else {
+      gridWrapperRef.current.scrollLeft = 0
+    }
+  }, [year, month, isMobile]) // eslint-disable-line react-hooks/exhaustive-deps
+
   if (rooms.length === 0) {
     return (
       <div className="empty-state">
@@ -176,6 +195,108 @@ export default function BookingGrid({ year, month, rooms, reservations, onCellCl
     )
   }
 
+  const days = Array.from({ length: total }, (_, i) => i + 1)
+
+  // ── Shared cell renderers ─────────────────────────
+  function renderResCell(room, day, cell, keyProp, asColSpan) {
+    const { res, span, fromPrev, toNext } = cell
+    const status = resolveStatus(res)
+    const colors = reservationColor(room.type, status)
+    const nights = Math.round((new Date(res.checkOut) - new Date(res.checkIn)) / 86400000)
+    const spanProp = asColSpan ? { colSpan: span } : { rowSpan: span }
+    return (
+      <td key={keyProp} {...spanProp} className="res-cell" onClick={() => onReservationClick(res)}>
+        <div
+          className={['res-block', fromPrev?'from-prev':'', toNext?'to-next':''].join(' ')}
+          style={{ background: colors.bg, borderColor: colors.border, color: colors.text, borderLeftColor: colors.border }}
+        >
+          <div className="res-name">{res.guestName}</div>
+          {res.phone && <div className="res-phone">{res.phone}</div>}
+          <div className="res-meta">
+            <span className="res-nights">{nights}н</span>
+            {status === 'paid'    && <span className="status-dot dot-paid">плач.</span>}
+            {status === 'advance' && <span className="status-dot dot-advance">авн.</span>}
+            {status === 'reserved'&& <span className="status-dot dot-reserved">рез.</span>}
+          </div>
+        </div>
+      </td>
+    )
+  }
+
+  function renderFreeCell(room, day, keyProp) {
+    const isSelecting = selRoom === room.id && day >= selMin && day <= selMax
+    return (
+      <td key={keyProp}
+        className={`free-cell${isSelecting?' selecting':''}`}
+        data-day={day}
+        data-room-id={room.id}
+        onMouseDown={e => { e.preventDefault(); startDrag(room.id, day) }}
+        onMouseEnter={() => extendDrag(room.id, day)}
+        onTouchStart={e => { e.preventDefault(); startDrag(room.id, day) }}
+        title={`Добави резервация — ${room.name}`}
+      />
+    )
+  }
+
+  // ── Transposed layout (mobile): rooms=rows, days=cols ─
+  if (isMobile) {
+    return (
+      <>
+        <Legend rooms={rooms} />
+        <div
+          className="grid-wrapper grid-transposed"
+          ref={gridWrapperRef}
+          onTouchEnd={handleTouchEnd}
+          style={drag ? { userSelect: 'none' } : undefined}
+        >
+          <table className="booking-table">
+            <thead>
+              <tr>
+                {/* Top-left corner */}
+                <th className="t-room-corner sticky-col sticky-head" />
+                {days.map(day => {
+                  const dateStr  = toDateStr(year, month, day)
+                  const dow      = new Date(year, month-1, day).getDay()
+                  const isToday  = dateStr === todayStr
+                  const isWeekend = dow === 0 || dow === 6
+                  return (
+                    <th key={day}
+                      className={[
+                        't-day-header sticky-head',
+                        isToday   ? 't-day-today'   : '',
+                        isWeekend ? 't-day-weekend' : '',
+                      ].join(' ')}
+                    >
+                      <span className="day-num">{day}</span>
+                      <span className="day-abbr">{DAY_ABBR[dow]}</span>
+                    </th>
+                  )
+                })}
+              </tr>
+            </thead>
+            <tbody>
+              {rooms.map(room => (
+                <tr key={room.id} className="t-room-row">
+                  <td className="t-room-cell sticky-col">
+                    <div className="room-hdr-name">{room.name}</div>
+                    {room.type && <div className="room-hdr-type">{room.type}</div>}
+                  </td>
+                  {days.map(day => {
+                    const cell = grid[day][room.id]
+                    if (cell.type === 'occupied') return null
+                    if (cell.type === 'start') return renderResCell(room, day, cell, day, true)
+                    return renderFreeCell(room, day, day)
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </>
+    )
+  }
+
+  // ── Default layout (desktop): dates=rows, rooms=cols ──
   return (
     <>
       <Legend rooms={rooms} />
@@ -198,75 +319,23 @@ export default function BookingGrid({ year, month, rooms, reservations, onCellCl
             </tr>
           </thead>
           <tbody>
-            {Array.from({ length: total }, (_, i) => i + 1).map(day => {
-              const dateStr = toDateStr(year, month, day)
-              const dow     = new Date(year, month-1, day).getDay()
+            {days.map(day => {
+              const dateStr   = toDateStr(year, month, day)
+              const dow       = new Date(year, month-1, day).getDay()
               const isToday   = dateStr === todayStr
               const isWeekend = dow === 0 || dow === 6
 
               return (
-                <tr key={day}
-                  className={`${isToday?'row-today':''} ${isWeekend?'row-weekend':''}`}
-                >
+                <tr key={day} className={`${isToday?'row-today':''} ${isWeekend?'row-weekend':''}`}>
                   <td className={`date-cell sticky-col ${isToday?'date-cell-today':''}`}>
                     <span className="day-num">{day}</span>
                     <span className="day-abbr">{DAY_ABBR[dow]}</span>
                   </td>
-
                   {rooms.map(room => {
                     const cell = grid[day][room.id]
                     if (cell.type === 'occupied') return null
-
-                    if (cell.type === 'start') {
-                      const { res, span, fromPrev, toNext } = cell
-                      const status = resolveStatus(res)
-                      const colors = reservationColor(room.type, status)
-                      const nights = Math.round(
-                        (new Date(res.checkOut) - new Date(res.checkIn)) / 86400000
-                      )
-                      return (
-                        <td key={room.id} rowSpan={span}
-                          className="res-cell"
-                          onClick={() => onReservationClick(res)}
-                        >
-                          <div
-                            className={[
-                              'res-block',
-                              fromPrev ? 'from-prev' : '',
-                              toNext   ? 'to-next'   : '',
-                            ].join(' ')}
-                            style={{
-                              background:      colors.bg,
-                              borderColor:     colors.border,
-                              color:           colors.text,
-                              borderLeftColor: colors.border,
-                            }}
-                          >
-                            <div className="res-name">{res.guestName}</div>
-                            {res.phone && <div className="res-phone">{res.phone}</div>}
-                            <div className="res-meta">
-                              <span className="res-nights">{nights}н</span>
-                              {status === 'paid'    && <span className="status-dot dot-paid">плач.</span>}
-                              {status === 'advance' && <span className="status-dot dot-advance">авн.</span>}
-                              {status === 'reserved'&& <span className="status-dot dot-reserved">рез.</span>}
-                            </div>
-                          </div>
-                        </td>
-                      )
-                    }
-
-                    const isSelecting = selRoom === room.id && day >= selMin && day <= selMax
-                    return (
-                      <td key={room.id}
-                        className={`free-cell${isSelecting ? ' selecting' : ''}`}
-                        data-day={day}
-                        data-room-id={room.id}
-                        onMouseDown={e => { e.preventDefault(); startDrag(room.id, day) }}
-                        onMouseEnter={() => extendDrag(room.id, day)}
-                        onTouchStart={e => { e.preventDefault(); startDrag(room.id, day) }}
-                        title={`Добави резервация — ${room.name}`}
-                      />
-                    )
+                    if (cell.type === 'start') return renderResCell(room, day, cell, room.id, false)
+                    return renderFreeCell(room, day, room.id)
                   })}
                 </tr>
               )
