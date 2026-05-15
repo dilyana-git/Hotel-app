@@ -411,15 +411,26 @@ form { padding: 16px 24px 0 }
 .room-select-mobile { display: none }
 
 /* ── Mobile ───────────────────────────────────────── */
-@media (max-width: 480px) {
-  .modal { border-radius: 14px 14px 0 0; align-self: flex-end; max-height: 92dvh }
+@media (max-width: 640px) {
+  /* Slide up from bottom */
+  .modal { border-radius: 16px 16px 0 0; align-self: flex-end; max-height: 95dvh }
   .overlay { align-items: flex-end; padding: 0 }
   form { padding: 12px 16px 0 }
   .modal-head { padding: 14px 16px 12px }
-  .modal-foot { padding: 12px 16px }
+  .modal-foot { padding: 12px 16px; padding-bottom: calc(12px + env(safe-area-inset-bottom)) }
   .field-row { grid-template-columns: 1fr }
   .field-check { justify-content: flex-start }
   .check-label { margin-top: 0 }
+
+  /* Prevent iOS from zooming in when tapping inputs */
+  .field input, .field select, .field textarea,
+  .price-field-wrap input {
+    font-size: 16px;
+  }
+
+  /* Larger tap targets for buttons */
+  .btn { min-height: 46px; padding: 10px 18px }
+  .btn-sm { min-height: 36px }
 
   /* Room picker: use dropdown instead of cards on mobile */
   .room-select-mobile { display: block }

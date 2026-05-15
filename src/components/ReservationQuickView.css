@@ -216,7 +216,14 @@
 }
 
 /* ── Mobile ───────────────────────────────────────── */
-@media (max-width: 480px) {
-  .qv-card { border-radius: 16px 16px 0 0; align-self: flex-end }
+@media (max-width: 640px) {
+  .qv-card {
+    border-radius: 16px 16px 0 0;
+    align-self: flex-end;
+    /* Sit above the bottom nav bar */
+    margin-bottom: calc(64px + env(safe-area-inset-bottom));
+  }
   .qv-overlay { align-items: flex-end; padding: 0 }
+  .qv-actions .btn { min-height: 46px }
+  .qv-status-btn { padding: 13px 14px }
 }

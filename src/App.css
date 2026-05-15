@@ -169,11 +169,43 @@ body {
 
 .btn-sm { padding: 5px 12px; font-size: .8rem }
 
-/* ── Mobile header ────────────────────────────────── */
-@media (max-width: 480px) {
-  .brand-name { display: none }
-  .app-header { padding: 0 10px }
-  .nav-tab { padding: 6px 10px; font-size: .8rem; gap: 4px }
+/* ── Mobile: bottom navigation bar ───────────────── */
+@media (max-width: 640px) {
+  /* Move nav to a fixed bottom bar */
+  .header-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--white);
+    border-top: 1px solid var(--gray-200);
+    box-shadow: 0 -2px 12px rgba(0,0,0,.07);
+    display: flex;
+    justify-content: space-around;
+    padding: 4px 0 calc(6px + env(safe-area-inset-bottom));
+    z-index: 150;
+  }
+
+  .nav-tab {
+    flex: 1;
+    flex-direction: column;
+    gap: 3px;
+    padding: 8px 4px;
+    font-size: .7rem;
+    min-height: 56px;
+    border-radius: 0;
+  }
+  .nav-icon { font-size: 1.25rem }
+
+  /* Push app content above the bottom bar */
+  .app { padding-bottom: calc(64px + env(safe-area-inset-bottom)) }
+
+  /* Header: just brand, no nav clutter */
+  .app-header { padding: 0 16px }
+  .brand-name  { font-size: .95rem }
+
+  /* Month nav arrow bigger tap area */
+  .month-arrow { width: 44px; height: 44px }
 }
 
 /* ── Loading state ────────────────────────────────── */

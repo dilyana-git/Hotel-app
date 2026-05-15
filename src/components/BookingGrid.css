@@ -159,7 +159,7 @@
 .free-cell {
   border-left: 1px solid var(--gray-100);
   cursor: pointer;
-  height: 34px;
+  height: 40px;
   vertical-align: top;
   transition: background .1s;
 }
@@ -241,3 +241,30 @@
 .dot-paid     { background: rgba(0,0,0,.12) }
 .dot-advance  { background: rgba(0,0,0,.10) }
 .dot-reserved { background: rgba(0,0,0,.07) }
+
+/* ── Mobile grid tweaks ───────────────────────────── */
+@media (max-width: 640px) {
+  /* Taller rows = easier to tap */
+  .free-cell { height: 48px }
+
+  /* Narrower columns to fit more rooms on screen */
+  .room-header { min-width: 80px; max-width: 90px }
+
+  /* Narrower date column */
+  .date-header, .date-cell { width: 48px; min-width: 48px }
+
+  /* Drop the day abbreviation to save vertical space */
+  .day-abbr { display: none }
+
+  /* Bigger day number */
+  .day-num { font-size: 1rem }
+
+  /* Grid fills viewport minus header, month-nav, and bottom nav */
+  .grid-wrapper {
+    max-height: calc(100dvh - 113px - 64px - env(safe-area-inset-bottom));
+  }
+
+  /* Legend: compact on mobile */
+  .grid-legend { gap: 10px; padding: 6px 12px; font-size: .68rem }
+  .legend-cat  { display: none }
+}
