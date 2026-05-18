@@ -357,31 +357,48 @@ form { padding: 16px 24px 0 }
   margin-top: 4px;
 }
 
-/* ── Swap suggestions ─────────────────────────────── */
-.swap-section {
-  margin: 0 24px 12px;
-  background: hsl(250,40%,98%);
+/* ── Swap suggestions (collapsible) ──────────────── */
+details.swap-section {
+  margin-bottom: 12px;
   border: 1px solid hsl(250,40%,90%);
   border-radius: var(--radius);
-  padding: 10px 12px;
+  background: hsl(250,40%,98%);
+  overflow: hidden;
 }
-.swap-section-label {
-  font-size: .72rem;
+.swap-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 12px;
+  font-size: .78rem;
+  font-weight: 600;
+  color: hsl(250,40%,35%);
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+.swap-toggle::-webkit-details-marker { display: none }
+.swap-toggle::after { content: '▾'; font-size: .7rem; color: var(--gray-400) }
+details[open] .swap-toggle::after { content: '▴' }
+.swap-count {
+  margin-left: 6px;
+  background: hsl(250,40%,88%);
+  color: hsl(250,40%,35%);
+  font-size: .7rem;
   font-weight: 700;
-  color: hsl(250,40%,45%);
-  text-transform: uppercase;
-  letter-spacing: .04em;
-  margin-bottom: 8px;
+  padding: 1px 6px;
+  border-radius: 99px;
+  margin-right: auto;
+  margin-left: 6px;
 }
 .swap-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding: 6px 0;
+  padding: 7px 12px;
   border-top: 1px solid hsl(250,30%,93%);
 }
-.swap-item:first-of-type { border-top: none; padding-top: 0; }
 .swap-info {
   display: flex;
   flex-direction: column;
@@ -407,8 +424,50 @@ form { padding: 16px 24px 0 }
   flex-shrink: 0;
 }
 
-/* ── Room picker visibility ───────────────────────── */
-.room-select-mobile { display: none }
+/* ── Details toggle ──────────────────────────────── */
+.details-toggle {
+  width: 100%;
+  background: var(--gray-50);
+  border: 1px dashed var(--gray-300);
+  border-radius: var(--radius);
+  color: var(--gray-500);
+  font-size: .8rem;
+  font-weight: 600;
+  padding: 8px 12px;
+  cursor: pointer;
+  text-align: left;
+  margin-bottom: 14px;
+  transition: background .15s, color .15s;
+}
+.details-toggle:hover { background: var(--gray-100); color: var(--gray-700) }
+
+/* ── Room fit row (below dropdown) ───────────────── */
+.room-fit-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+.room-fit-detail {
+  font-size: .75rem;
+  color: var(--gray-400);
+  flex: 1;
+  min-width: 0;
+}
+.use-best-btn {
+  background: none;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius);
+  color: var(--gray-700);
+  font-size: .75rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background .15s, border-color .15s;
+}
+.use-best-btn:hover { background: var(--gray-100); border-color: var(--gray-400) }
 
 /* ── Mobile ───────────────────────────────────────── */
 @media (max-width: 640px) {

@@ -69,7 +69,7 @@ export default function ReservationModal({
   })
   const [priceOverridden, setPriceOverridden] = useState(false)
   const [error, setError]   = useState('')
-  const [showAll, setShowAll] = useState(false)
+  const [showDetails, setShowDetails] = useState(mode === 'edit')
 
   useEffect(() => {
     if (mode === 'edit' && reservation) {
@@ -173,7 +173,6 @@ export default function ReservationModal({
   const roomName    = selectedRoom?.name ?? ''
   const totalPrice  = Number(form.price) || 0
   const advance     = totalPrice > 0 ? advanceOf(totalPrice) : 0
-  const visibleScored = showAll ? scored : scored.slice(0, 5)
 
   return (
     <div className="overlay" onClick={onClose}>
@@ -184,16 +183,12 @@ export default function ReservationModal({
         </div>
 
         <form onSubmit={handleSubmit} noValidate>
-<div className="field">
+
+          {/* ── Essential fields ── */}
+          <div className="field">
             <label>Име на гост <span className="req">*</span></label>
             <input ref={firstInputRef} type="text" value={form.guestName}
               onChange={e => set('guestName', e.target.value)} placeholder="Пълно име" />
-          </div>
-
-          <div className="field">
-            <label>Телефонен номер</label>
-            <input type="tel" value={form.phone}
-              onChange={e => set('phone', e.target.value)} placeholder="+359 98 123 4567" />
           </div>
 
           <div className="field-row">
@@ -210,159 +205,128 @@ export default function ReservationModal({
             </div>
           </div>
 
+          <div className="field">
+            <label>Стая</label>
+            <select value={form.roomId} onChange={e => set('roomId', e.target.value)}>
+              {(scored.length > 0 ? scored.map(s => s.room) : rooms).map((room, i) => (
+                <option key={room.id} value={room.id}>
+                  {scored.length > 0 && i === 0 ? '★ ' : ''}{room.name}{room.type ? ` — ${room.type}` : ''}
+                </option>
+              ))}
+            </select>
+            {currentScore && (
+              <div className="room-fit-row">
+                <span className="fit-badge" style={{
+                  color:       fitLabel(currentScore.score).color,
+                  borderColor: fitLabel(currentScore.score).color + '55',
+                  background:  fitLabel(currentScore.score).color + '12',
+                }}>
+                  {fitLabel(currentScore.score).text}
+                </span>
+                <span className="room-fit-detail">{gapDesc(currentScore.gaps)}</span>
+                {!isBestRoom && bestRoom && (
+                  <button type="button" className="use-best-btn"
+                    onClick={() => set('roomId', bestRoom.room.id)}>
+                    ★ Използвай {bestRoom.room.name}
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+
           {nights > 0 && (
             <div className="nights-pill">{nights} нощ{nights !== 1 ? 'и' : ''} · {roomName}</div>
           )}
 
-          {/* ── Smart room picker ── */}
-          <div className="field">
-            <label>
-              Стая
-              {scored.length > 0 && <span className="label-hint"> — сортирано по най-добро съответствие</span>}
-            </label>
+          {/* ── Extra details (collapsible) ── */}
+          <button type="button" className="details-toggle"
+            onClick={() => setShowDetails(v => !v)}>
+            {showDetails ? '▴ Скрий детайли' : '▾ Телефон, цена, бележки…'}
+          </button>
 
-            {scored.length > 0 ? (
-              <>
-                {/* Mobile: compact dropdown sorted by best fit */}
-                <select
-                  className="room-select-mobile"
-                  value={form.roomId}
-                  onChange={e => set('roomId', e.target.value)}
-                >
-                  {scored.map(({ room }, i) => (
-                    <option key={room.id} value={room.id}>
-                      {i === 0 ? '★ ' : ''}{room.name}{room.type ? ` — ${room.type}` : ''}
-                    </option>
-                  ))}
-                </select>
+          {showDetails && (
+            <>
+              <div className="field">
+                <label>Телефонен номер</label>
+                <input type="tel" value={form.phone}
+                  onChange={e => set('phone', e.target.value)} placeholder="+359 98 123 4567" />
+              </div>
 
-                {/* Desktop: smart card picker */}
-                <div className="room-picker room-picker-desktop">
-                  {visibleScored.map(({ room, score, gaps }, i) => {
-                    const lbl      = fitLabel(score)
-                    const selected = form.roomId === room.id
+              <div className="field-row">
+                <div className="field">
+                  <label>
+                    Обща цена
+                    {autoPrice !== null && !priceOverridden && (
+                      <span className="label-hint"> — от сезон</span>
+                    )}
+                  </label>
+                  <div className="price-field-wrap">
+                    <span className="currency-prefix">€</span>
+                    <input type="number" value={form.price}
+                      onChange={e => setPrice(e.target.value)}
+                      placeholder="0" min="0" step="1" />
+                  </div>
+                </div>
+                <div className="field">
+                  <label>Статус на плащане</label>
+                  <select value={form.paymentStatus}
+                    onChange={e => set('paymentStatus', e.target.value)}>
+                    {PAYMENT_OPTIONS.map(o => (
+                      <option key={o.value} value={o.value}>{o.label}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {totalPrice > 0 && (
+                <div className={`payment-summary status-${form.paymentStatus}`}>
+                  {form.paymentStatus === 'reserved' && (
+                    <span>Обща сума: <strong>€ {totalPrice}</strong> — без събрано плащане</span>
+                  )}
+                  {form.paymentStatus === 'advance' && (
+                    <span>Авансово: <strong>€ {advance}</strong> · оставащо: <strong>€ {totalPrice - advance}</strong></span>
+                  )}
+                  {form.paymentStatus === 'paid' && (
+                    <span>Напълно платено: <strong>€ {totalPrice}</strong></span>
+                  )}
+                </div>
+              )}
+
+              <div className="field">
+                <label>Бележки</label>
+                <textarea value={form.notes} onChange={e => set('notes', e.target.value)}
+                  placeholder="Специални заявки, ранен чек-ин…" rows={2} />
+              </div>
+
+              {/* ── Swap suggestions ── */}
+              {swapSuggestions.length > 0 && (
+                <details className="swap-section">
+                  <summary className="swap-toggle">
+                    Освободи стая чрез размяна
+                    <span className="swap-count">{swapSuggestions.length}</span>
+                  </summary>
+                  {swapSuggestions.map(s => {
+                    const lbl = fitLabel(s.newScore)
                     return (
-                      <button key={room.id} type="button"
-                        className={`room-option ${selected ? 'selected' : ''}`}
-                        onClick={() => set('roomId', room.id)}
-                      >
-                        <div className="room-opt-top">
-                          <span className="room-opt-name">
-                            {room.name}
-                            {i === 0 && <span className="star-badge">★ Най-добро</span>}
-                          </span>
-                          <span className="fit-badge"
-                            style={{ color: lbl.color, borderColor: lbl.color+'55', background: lbl.color+'12' }}>
-                            {lbl.text}
-                          </span>
+                      <div key={s.conflictRes.id} className="swap-item">
+                        <div className="swap-info">
+                          <span className="swap-guest">{s.conflictRes.guestName}</span>
+                          <span className="swap-route">Стая {s.fromRoom.name} → Стая {s.toRoom.name}</span>
                         </div>
-                        <div className="room-opt-detail">{gapDesc(gaps)}</div>
-                      </button>
+                        <div className="swap-item-right">
+                          <span className="fit-badge" style={{
+                            color: lbl.color, borderColor: lbl.color+'55', background: lbl.color+'12',
+                          }}>{lbl.text}</span>
+                          <button type="button" className="btn btn-sm btn-ghost"
+                            onClick={() => handleApplySwap(s)}>Приложи</button>
+                        </div>
+                      </div>
                     )
                   })}
-                </div>
-                {scored.length > 5 && (
-                  <button type="button" className="show-more-btn room-picker-desktop"
-                    onClick={() => setShowAll(v => !v)}>
-                    {showAll ? 'Покажи по-малко стаи' : `Покажи всички ${scored.length} налични стаи`}
-                  </button>
-                )}
-                {currentScore && !isBestRoom && fitLabel(currentScore.score).text === 'Оставя празнина' && (
-                  <div className="room-warn">
-                    ⚠ Тази стая ще остави празнина. Разгледайте <strong>{bestRoom.room.name}</strong> за по-добро съответствие.
-                  </div>
-                )}
-              </>
-            ) : (
-              <select value={form.roomId} onChange={e => set('roomId', e.target.value)}>
-                {rooms.map(r => (
-                  <option key={r.id} value={r.id}>{r.name}{r.type ? ` — ${r.type}` : ''}</option>
-                ))}
-              </select>
-            )}
-          </div>
-
-          {/* ── Swap suggestions ── */}
-          {swapSuggestions.length > 0 && (
-            <div className="swap-section">
-              <div className="swap-section-label">Освободи стая като преместиш съществуващ гост</div>
-              {swapSuggestions.map(s => {
-                const lbl = fitLabel(s.newScore)
-                return (
-                  <div key={s.conflictRes.id} className="swap-item">
-                    <div className="swap-info">
-                      <span className="swap-guest">{s.conflictRes.guestName}</span>
-                      <span className="swap-route">
-                        Стая {s.fromRoom.name} → Стая {s.toRoom.name}
-                      </span>
-                    </div>
-                    <div className="swap-item-right">
-                      <span className="fit-badge" style={{
-                        color: lbl.color,
-                        borderColor: lbl.color + '55',
-                        background:  lbl.color + '12',
-                      }}>
-                        {lbl.text}
-                      </span>
-                      <button type="button" className="btn btn-sm btn-ghost"
-                        onClick={() => handleApplySwap(s)}>
-                        Приложи
-                      </button>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
+                </details>
+              )}
+            </>
           )}
-
-          {/* ── Price & payment ── */}
-          <div className="field-row">
-            <div className="field">
-              <label>
-                Обща цена
-                {autoPrice !== null && !priceOverridden && (
-                  <span className="label-hint"> — автоматично от сезон</span>
-                )}
-              </label>
-              <div className="price-field-wrap">
-                <span className="currency-prefix">€</span>
-                <input type="number" value={form.price}
-                  onChange={e => setPrice(e.target.value)}
-                  placeholder="0" min="0" step="1" />
-              </div>
-            </div>
-
-            <div className="field">
-              <label>Статус на плащане</label>
-              <select value={form.paymentStatus}
-                onChange={e => set('paymentStatus', e.target.value)}>
-                {PAYMENT_OPTIONS.map(o => (
-                  <option key={o.value} value={o.value}>{o.label}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          {/* Payment summary pill */}
-          {totalPrice > 0 && (
-            <div className={`payment-summary status-${form.paymentStatus}`}>
-              {form.paymentStatus === 'reserved' && (
-                <span>Обща сума: <strong>€ {totalPrice}</strong> — без събрано плащане</span>
-              )}
-              {form.paymentStatus === 'advance' && (
-                <span>Авансово платено: <strong>€ {advance}</strong> — оставащо: <strong>€ {totalPrice - advance}</strong></span>
-              )}
-              {form.paymentStatus === 'paid' && (
-                <span>Напълно платено: <strong>€ {totalPrice}</strong></span>
-              )}
-            </div>
-          )}
-
-          <div className="field">
-            <label>Бележки</label>
-            <textarea value={form.notes} onChange={e => set('notes', e.target.value)}
-              placeholder="Специални заявки, ранен чек-ин, и т.н." rows={3} />
-          </div>
 
           {error && <div className="form-error">{error}</div>}
 
@@ -373,7 +337,7 @@ export default function ReservationModal({
             <div className="foot-right">
               <button type="button" className="btn btn-ghost" onClick={onClose}>Отмени</button>
               <button type="submit" className="btn btn-primary">
-                {mode === 'add' ? 'Запази резервацията' : 'Актуализирай'}
+                {mode === 'add' ? 'Запази' : 'Актуализирай'}
               </button>
             </div>
           </div>

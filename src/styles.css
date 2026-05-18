@@ -1,0 +1,108 @@
+/* Shared design tokens for the hotel manager redesign */
+
+:root {
+  --bg: #f6f4ef;
+  --surface: #ffffff;
+  --surface-2: #faf8f3;
+  --surface-3: #f0ede5;
+  --ink: #1a1814;
+  --ink-2: #3d3833;
+  --muted: #807769;
+  --muted-2: #a39a8b;
+  --line: #e8e3d8;
+  --line-2: #efeae0;
+
+  /* Room = indigo, Apartment = peach. Three intensities for payment status. */
+  --room-50:  #efeefc;
+  --room-100: #e0deff;
+  --room-200: #c4c1f7;
+  --room-500: #6c66d8;
+  --room-700: #4a45a8;
+
+  --apt-50:  #fdf1ea;
+  --apt-100: #fbe1d2;
+  --apt-200: #f5c4a6;
+  --apt-500: #d97a4a;
+  --apt-700: #a55428;
+
+  --ok: #2f8f5f;
+  --ok-bg: #e3f3ea;
+  --warn: #b8801f;
+  --warn-bg: #fbf0d6;
+  --danger: #b5413a;
+  --danger-bg: #f7e0dd;
+  --info: #3360b8;
+  --info-bg: #e3ecf8;
+
+  --radius-sm: 6px;
+  --radius: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --shadow-sm: 0 1px 2px rgba(20,15,10,.04);
+  --shadow: 0 2px 8px rgba(20,15,10,.06), 0 1px 2px rgba(20,15,10,.04);
+  --shadow-lg: 0 12px 32px rgba(20,15,10,.10), 0 2px 6px rgba(20,15,10,.06);
+
+  --font: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, sans-serif;
+}
+
+/* keep dc canvas font in sync */
+body { font-family: var(--font); color: var(--ink); }
+
+/* Reusable atoms */
+.hm-app {
+  font-family: var(--font);
+  color: var(--ink);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "ss01", "cv11";
+  line-height: 1.4;
+}
+.hm-app * { box-sizing: border-box; }
+.hm-app button { font-family: inherit; cursor: pointer; }
+
+.hm-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 8px; border-radius: 999px;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.hm-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 999px;
+  font-size: 12px; font-weight: 600;
+  background: var(--surface-3); color: var(--ink-2);
+}
+
+.hm-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+/* annotation callouts */
+.ann-pin {
+  position: absolute;
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  background: #d63b30; color: white;
+  font-weight: 700; font-size: 13px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 12px rgba(214,59,48,.4), 0 0 0 4px rgba(214,59,48,.15);
+  z-index: 5;
+}
+.ann-note {
+  position: absolute;
+  background: #1a1814; color: white;
+  padding: 8px 12px; border-radius: 8px;
+  font-size: 12px; line-height: 1.4;
+  max-width: 220px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.18);
+  z-index: 4;
+}
+.ann-note::before {
+  content: ""; position: absolute;
+  width: 8px; height: 8px;
+  background: #1a1814;
+  transform: rotate(45deg);
+}
