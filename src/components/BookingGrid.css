@@ -268,3 +268,69 @@
   .grid-legend { gap: 10px; padding: 6px 12px; font-size: .68rem }
   .legend-cat  { display: none }
 }
+
+/* ── Transposed layout (mobile: rooms=rows, days=cols) ── */
+.grid-transposed { max-height: none }
+
+/* Top-left corner cell */
+.t-room-corner {
+  width: 52px;
+  min-width: 52px;
+  background: var(--gray-50);
+}
+
+/* Day column headers */
+.t-day-header {
+  min-width: 44px;
+  width: 44px;
+  padding: 5px 2px;
+  text-align: center;
+  border-left: 1px solid var(--gray-200);
+  background: var(--gray-50);
+}
+.t-day-header .day-num  { font-size: .85rem }
+.t-day-header .day-abbr { display: block; font-size: .6rem; color: var(--gray-400) }
+.t-day-today  { background: #FFFBEB !important }
+.t-day-today .day-num { color: var(--blue); font-weight: 800 }
+.t-day-weekend { background: #FAFBFF }
+
+/* Room name column (sticky left) */
+.t-room-cell {
+  width: 52px;
+  min-width: 52px;
+  padding: 4px 6px;
+  border-right: 2px solid var(--gray-200);
+  text-align: center;
+  vertical-align: middle;
+  background: var(--white);
+}
+.t-room-row:nth-child(even) .t-room-cell { background: var(--gray-50) }
+
+/* Each room row */
+.t-room-row { height: 52px }
+.t-room-row:nth-child(even) { background: var(--gray-50) }
+.t-room-row .free-cell      { height: 52px }
+
+/* Reservation blocks in transposed layout sit horizontally */
+.grid-transposed .res-cell { height: 52px; padding: 3px 2px }
+.grid-transposed .res-block { border-left-width: 1px; border-top-width: 4px }
+
+/* Horizontal continuation markers (override the vertical ones) */
+.grid-transposed .res-block.from-prev {
+  border-top-style: solid;
+  border-top-width: 4px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 6px;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 6px;
+  border-left-style: none;
+}
+.grid-transposed .res-block.to-next {
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  border-top-left-radius: 6px;
+  border-bottom-left-radius: 6px;
+  border-right-style: none;
+}
